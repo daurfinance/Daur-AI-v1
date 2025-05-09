@@ -1,0 +1,32 @@
+# Daur-AI требования пакетов
+# Версия: 1.0
+# Дата: 09.05.2025
+
+# Основные пакеты
+numpy>=1.20.0
+pynput>=1.7.0
+pillow>=8.0.0
+psutil>=5.8.0
+
+# Пакеты для ИИ-компонентов
+torch>=1.10.0
+transformers>=4.18.0
+llama-cpp-python>=0.1.0
+onnxruntime>=1.10.0; platform_system!='Darwin' or platform_machine!='arm64'
+onnxruntime-silicon>=1.8.0; platform_system=='Darwin' and platform_machine=='arm64'
+
+# Пакеты для GUI
+tk>=0.1.0; platform_system!='Darwin'
+pyobjc-framework-Cocoa>=7.0; platform_system=='Darwin'
+
+# Платформенно-зависимые пакеты
+pywin32>=228; platform_system=='Windows'
+pygetwindow>=0.0.9; platform_system=='Windows'
+pyautogui>=0.9.53
+
+# Утилиты для разработки
+pytest>=6.2.5
+black>=21.5b2
+flake8>=3.9.2
+mypy>=0.812
+cryptography==44.0.3

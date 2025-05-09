@@ -1,0 +1,39 @@
+{
+    "app_name": "Daur-AI",
+    "version": "1.0",
+    "description": "Универсальный автономный ИИ-агент",
+    "model_path": "models/default_model.gguf",
+    "log_path": "logs/",
+    "encrypt_logs": false,
+    "ui_settings": {
+        "console": {
+            "prompt": "Daur-AI> ",
+            "history_size": 100,
+            "use_colors": true
+        },
+        "gui": {
+            "theme": "dark",
+            "window_size": [800, 600]
+        }
+    },
+    "file_operations": {
+        "allowed_extensions": ["txt", "py", "md", "json", "csv", "html", "css", "js"],
+        "restricted_paths": ["/System", "/bin", "/sbin", "/etc", "/usr", "C:\\Windows", "C:\\Program Files"]
+    },
+    "input_control": {
+        "mouse_speed": 1.0,
+        "keyboard_delay": 0.05,
+        "safe_mode": true
+    },
+    "app_control": {
+        "allowed_apps": [],
+        "restricted_apps": ["Terminal.app", "cmd.exe", "PowerShell.exe"]
+    },
+    "advanced": {
+        "sandbox_mode": false,
+        "model_inference_timeout": 30,
+        "max_tokens_response": 512,
+        "temperature": 0.7,
+        "debug_mode": false
+    }
+}
