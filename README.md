@@ -1,127 +1,121 @@
 # 🤖 Daur-AI v2.0 - Revolutionary Autonomous AI Agent
 
+![Daur-AI v2.0 Showcase](docs/images/product_showcase.png)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Node.js 16+](https://img.shields.io/badge/node.js-16+-green.svg)](https://nodejs.org/)
 [![Electron](https://img.shields.io/badge/electron-32+-purple.svg)](https://electronjs.org/)
+[![version](https://img.shields.io/badge/version-2.0-blue.svg)](#)
 
-**Daur-AI** - это революционный автономный AI-агент с компьютерным зрением, системным управлением и интеграцией с Telegram. Полностью автоматизирует работу с компьютером через естественный язык.
+**Daur-AI** is a revolutionary autonomous AI agent with computer vision, system control, and Telegram integration. It fully automates computer operations through natural language, providing a seamless and intuitive user experience.
 
-## ✨ Ключевые возможности
+## ✨ Key Features
 
-### 🧠 **Искусственный интеллект**
-- **Мультимодальные AI модели** - работа с текстом, изображениями, аудио
-- **Автономное планирование** - разбивка сложных задач на шаги
-- **Система самообучения** - адаптация под пользователя
-- **Поддержка Ollama и OpenAI** - локальные и облачные модели
+### 🧠 **Artificial Intelligence**
 
-### 👁️ **Компьютерное зрение**
-- **Низкоуровневый захват экрана** - обход системных защит
-- **OCR в реальном времени** - чтение текста с любых интерфейсов
-- **Визуальная навигация** - поиск и клик по элементам
-- **Анализ изображений** - распознавание объектов и контента
+![AI Brain](docs/images/ai_brain_illustration.png)
 
-### 🎮 **Системное управление**
-- **Полное управление мышью и клавиатурой** - автоматизация любых действий
-- **Управление приложениями** - запуск, остановка, переключение
-- **Файловые операции** - создание, редактирование, организация
-- **Мониторинг системы** - CPU, память, процессы в реальном времени
+- **Multimodal AI Models:** Work with text, images, and audio for comprehensive understanding and interaction.
+- **Autonomous Planning:** Break down complex tasks into manageable steps and execute them autonomously.
+- **Self-Learning System:** Adapt to user behavior and improve efficiency over time.
+- **Ollama and OpenAI Support:** Choose between local and cloud-based large language models for flexibility and privacy.
 
-### 🌐 **Браузерная автоматизация**
-- **Playwright интеграция** - автоматизация веб-сайтов
-- **Визуальное распознавание** - работа с любыми интерфейсами
-- **Заполнение форм** - автоматический ввод данных
-- **Скрапинг данных** - извлечение информации
+### 👁️ **Computer Vision**
 
-### 📱 **Telegram интеграция**
-- **Удаленное управление** - контроль через мессенджер
-- **Голосовые команды** - распознавание речи
-- **Обработка файлов** - анализ документов и изображений
-- **Уведомления в реальном времени** - статус выполнения задач
+![Desktop App Mockup](docs/images/desktop_app_mockup.png)
 
-### 🖥️ **Современные интерфейсы**
-- **Electron desktop приложение** - нативный интерфейс
-- **React веб-панель** - современный веб-интерфейс
-- **REST API** - интеграция с внешними системами
-- **Мониторинг в реальном времени** - графики и статистика
+- **Low-Level Screen Capture:** Bypass system protections to work with any application.
+- **Real-Time OCR:** Read text from any interface, enabling automation of legacy systems.
+- **Visual Navigation:** Find and click on UI elements based on visual cues.
+- **Image Analysis:** Recognize objects and content within images for deeper understanding.
 
-## 🚀 Быстрый старт
+### 🎮 **System Control**
 
-### Автоматическая установка
+![Automation Workflow](docs/images/automation_workflow.png)
+
+- **Full Mouse and Keyboard Control:** Automate any action you can perform manually.
+- **Application Management:** Launch, stop, and switch between applications seamlessly.
+- **File Operations:** Create, edit, and organize files and folders with simple commands.
+- **System Monitoring:** Keep track of CPU, memory, and processes in real-time.
+
+### 🌐 **Browser Automation**
+
+- **Playwright Integration:** Automate modern web applications with a powerful and reliable framework.
+- **Visual Recognition:** Interact with web elements that lack traditional selectors.
+- **Form Filling:** Automatically populate and submit web forms.
+- **Data Scraping:** Extract information from websites for analysis and reporting.
+
+### 📱 **Telegram Integration**
+
+![Telegram Mockup](docs/images/mobile_telegram_mockup.png)
+
+- **Remote Control:** Manage your computer from anywhere using the Telegram messenger.
+- **Voice Commands:** Issue commands and receive responses using your voice.
+- **File Processing:** Analyze documents and images sent to the bot.
+- **Real-Time Notifications:** Stay updated on the status of your tasks.
+
+### 🖥️ **Modern Interfaces**
+
+![Dashboard UI](docs/images/dashboard_ui.png)
+
+- **Electron Desktop Application:** Enjoy a native and feature-rich user experience.
+- **React Web Panel:** Access a modern and responsive web interface from any device.
+- **REST API:** Integrate Daur-AI with your existing systems and workflows.
+- **Real-Time Monitoring:** Visualize system activity with charts and statistics.
+
+## 🚀 Quick Start
+
+### Automatic Installation
 
 ```bash
-# Клонируем репозиторий
+# Clone the repository
 git clone https://github.com/daurfinance/Daur-AI-v1.git
 cd Daur-AI-v1
 
-# Запускаем автоматическую установку
+# Run the automatic installation script
 ./install.sh
 
-# Настраиваем Telegram бота (опционально)
-nano telegram_config.json  # Укажите TELEGRAM_BOT_TOKEN
+# Configure the Telegram bot (optional)
+nano telegram_config.json  # Enter your TELEGRAM_BOT_TOKEN
 
-# Запускаем систему
+# Start the system
 ./start_daur_ai.sh
 ```
 
-## 🎯 Примеры использования
+## 🎯 Usage Examples
 
-### Автоматизация офисных задач
+### Office Automation
 ```
-"Создай презентацию о продажах за квартал"
-"Отправь отчет по email всем менеджерам"
-"Обнови данные в Excel таблице"
-```
-
-### Веб-автоматизация
-```
-"Найди и скачай последние новости о Python"
-"Заполни форму регистрации на сайте"
-"Сравни цены на товар в 5 интернет-магазинах"
+"Create a presentation about quarterly sales."
+"Email the report to all managers."
+"Update the data in the Excel spreadsheet."
 ```
 
-### Системное администрирование
+### Web Automation
 ```
-"Проверь использование диска и очисти временные файлы"
-"Создай бэкап важных документов"
-"Установи обновления системы"
-```
-
-### Творческие задачи
-```
-"Создай логотип для стартапа"
-"Сгенерируй музыку в стиле джаз"
-"Напиши статью о машинном обучении"
+"Find and download the latest news about Python."
+"Fill out the registration form on this website."
+"Compare the prices of this product on 5 online stores."
 ```
 
-## 📋 Использование
-
-### 🖥️ Desktop приложение
-
-```bash
-# Запуск Electron приложения
-npm run electron
-
-# Или через лаунчер
-python3 daur_ai_launcher.py
+### System Administration
+```
+"Check disk usage and clear temporary files."
+"Create a backup of important documents."
+"Install system updates."
 ```
 
-### 🌐 Веб-интерфейс
+### Creative Tasks
+```
+"Create a logo for a startup."
+"Generate music in the style of jazz."
+"Write an article about machine learning."
+```
 
-1. Запустите систему: `./start_daur_ai.sh`
-2. Откройте браузер: http://localhost:5174
-3. Используйте веб-панель для управления
+## ⚙️ Configuration
 
-### 📱 Telegram бот
-
-1. Создайте бота через @BotFather
-2. Получите токен и добавьте в `telegram_config.json`
-3. Запустите систему
-4. Отправьте `/start` боту
-
-## ⚙️ Конфигурация
-
-### telegram_config.json
+### `telegram_config.json`
 ```json
 {
     "telegram": {
@@ -145,38 +139,43 @@ python3 daur_ai_launcher.py
 }
 ```
 
-## 📦 Сборка и распространение
+## 📦 Build and Distribution
 
-### Создание инсталлятора
+### Create an Installer
 
 ```bash
-# Сборка для всех платформ
+# Build for all platforms
 npm run build
 
-# Только для текущей ОС
+# For the current OS only
 npm run pack
 
-# Создание portable версии
+# Create a portable version
 npm run dist
 ```
 
-## 🆘 Поддержка
+## 🧑‍💻 Developer
 
-- **Документация**: [Wiki](https://github.com/daurfinance/Daur-AI-v1/wiki)
-- **Issues**: [GitHub Issues](https://github.com/daurfinance/Daur-AI-v1/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/daurfinance/Daur-AI-v1/discussions)
-- **Email**: info@daurfinance.com
+This project is developed and maintained by **Dauirzhan Abdulmazhit**.
 
-## 📄 Лицензия
+## 🆘 Support and Contact
 
-Этот проект распространяется под лицензией MIT. См. файл [LICENSE](LICENSE) для подробностей.
+- **Documentation:** [Wiki](https://github.com/daurfinance/Daur-AI-v1/wiki)
+- **Issues:** [GitHub Issues](https://github.com/daurfinance/Daur-AI-v1/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/daurfinance/Daur-AI-v1/discussions)
+- **Email:** daurfinance@gmail.com
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**🚀 Будущее автоматизации уже здесь!**
+**🚀 The future of automation is here!**
 
-[⭐ Поставьте звезду](https://github.com/daurfinance/Daur-AI-v1) | [🐛 Сообщить об ошибке](https://github.com/daurfinance/Daur-AI-v1/issues) | [💡 Предложить идею](https://github.com/daurfinance/Daur-AI-v1/discussions)
+[⭐ Star us on GitHub](https://github.com/daurfinance/Daur-AI-v1) | [🐛 Report a Bug](https://github.com/daurfinance/Daur-AI-v1/issues) | [💡 Suggest a Feature](https://github.com/daurfinance/Daur-AI-v1/discussions)
 
 </div>
+
