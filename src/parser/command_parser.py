@@ -21,9 +21,10 @@ class CommandParser:
     его в структурированные команды для выполнения агентом
     """
     
-    def __init__(self):
+    def __init__(self, ai_manager=None):
         """Инициализация парсера команд"""
         self.logger = logging.getLogger('daur_ai.parser')
+        self.ai_manager = ai_manager
         
         # Создание регулярных выражений для распознавания команд
         self._command_patterns = {
@@ -106,6 +107,31 @@ class CommandParser:
             re.IGNORECASE
         )
     
+    def parse(self, command: str) -> List[Dict[str, Any]]:
+        """
+        Основной метод парсинга команд с использованием AI
+        
+        Args:
+            command (str): Команда пользователя
+            
+        Returns:
+            List[Dict]: Список действий для выполнения
+        """
+        try:
+            if self.ai_manager and hasattr(self.ai_manager, 'parse_command'):
+                # Используем AI для парсинга
+                return self.ai_manager.parse_command(command)
+            else:
+                # Используем традиционный парсинг
+                parsed = self.parse_command(command)
+                if parsed.get('success', False):
+                    return [parsed]
+                else:
+                    return []
+        except Exception as e:
+            self.logger.error(f"Ошибка парсинга команды: {e}")
+            return []
+
     def parse_command(self, text: str) -> Dict[str, Any]:
         """
         Парсинг текстовой команды в структурированный формат

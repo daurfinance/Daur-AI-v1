@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daur-AI Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .content-area {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .welcome-section {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 0;
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 20px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div style="font-weight: 600;">Daur-AI Desktop</div>
+                <div style="font-size: 12px; opacity: 0.7;">v2.0.0</div>
+            </div>
+        </div>
+        <div class="status">
+            <div class="status-item">
+                <div class="status-dot"></div>
+                <span>Система готова</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" style="background: #f59e0b;"></div>
+                <span>Агент остановлен</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="nav-item active">
+                <span>🏠</span>
+                <span>Главная</span>
+            </div>
+            <div class="nav-item">
+                <span>🤖</span>
+                <span>Агент</span>
+            </div>
+            <div class="nav-item">
+                <span>📋</span>
+                <span>Задачи</span>
+            </div>
+            <div class="nav-item">
+                <span>👁️</span>
+                <span>Зрение</span>
+            </div>
+            <div class="nav-item">
+                <span>🧠</span>
+                <span>AI Модели</span>
+            </div>
+            <div class="nav-item">
+                <span>💬</span>
+                <span>Telegram</span>
+            </div>
+            <div class="nav-item">
+                <span>⚙️</span>
+                <span>Настройки</span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Добро пожаловать в Daur-AI</h1>
+                <p class="welcome-subtitle">
+                    Автономный AI-агент с компьютерным зрением и системой самообучения. 
+                    Управляйте компьютером через естественный язык и автоматизируйте любые задачи.
+                </p>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="startAgent()">
+                        🚀 Запустить агента
+                    </button>
+                    <button class="btn btn-secondary" onclick="openSettings()">
+                        ⚙️ Настройки
+                    </button>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <div class="feature-title">Искусственный интеллект</div>
+                        <div class="feature-description">
+                            Понимание естественного языка и автономное планирование задач
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">👁️</div>
+                        <div class="feature-title">Компьютерное зрение</div>
+                        <div class="feature-description">
+                            Анализ экрана, OCR и визуальная навигация по интерфейсам
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🎓</div>
+                        <div class="feature-title">Самообучение</div>
+                        <div class="feature-description">
+                            Адаптация поведения на основе опыта и обратной связи
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-title">Telegram интеграция</div>
+                        <div class="feature-description">
+                            Удаленное управление через бота с поддержкой аудио и файлов
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading-message" id="loadingMessage" style="display: none;">
+                    <p>🔄 Загрузка веб-интерфейса...</p>
+                    <p style="font-size: 14px; margin-top: 10px;">
+                        Если интерфейс не загружается, убедитесь что запущен dev сервер
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Простая функциональность для fallback страницы
+        function startAgent() {
+            if (window.electronAPI) {
+                window.electronAPI.startAgent().then(result => {
+                    console.log('Agent started:', result);
+                });
+            } else {
+                alert('Функция доступна только в desktop версии');
+            }
+        }
+
+        function openSettings() {
+            if (window.electronAPI) {
+                window.electronAPI.onOpenSettings(() => {
+                    console.log('Opening settings');
+                });
+            } else {
+                alert('Функция доступна только в desktop версии');
+            }
+        }
+
+        // Проверяем доступность веб-интерфейса
+        setTimeout(() => {
+            fetch('http://localhost:5174')
+                .then(() => {
+                    document.getElementById('loadingMessage').style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5174';
+                    }, 2000);
+                })
+                .catch(() => {
+                    console.log('Dev server not available, using fallback interface');
+                });
+        }, 1000);
+    </script>
+</body>
+</html>

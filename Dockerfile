@@ -1,86 +1,72 @@
-# Dockerfile для Daur-AI
-# Версия: 1.0
-# Дата: 09.05.2025
+# Daur-AI Docker Container
+FROM python:3.11-slim
 
-# Используем Python 3.10 в качестве базового образа
-FROM python:3.10-slim
-
-# Метаданные о контейнере
-LABEL maintainer="Daur-AI Team <support@daur-ai.com>"
-LABEL version="1.0"
-LABEL description="Универсальный автономный ИИ-агент"
-
-# Установка переменных окружения
-ENV PYTHONFAULTHANDLER=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONHASHSEED=random \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive
+# Метаданные
+LABEL maintainer="Daur-AI Team"
+LABEL version="1.1"
+LABEL description="Daur-AI - Автономный ИИ-агент с веб-панелью управления"
 
 # Установка системных зависимостей
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
-    libx11-dev \
-    libxtst-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libxcb1-dev \
-    && apt-get clean \
+    wget \
+    nodejs \
+    npm \
+    nginx \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
-# Создание пользователя без привилегий root
-RUN groupadd -g 1000 daurai && \
-    useradd -u 1000 -g daurai -ms /bin/bash daurai
+# Создание пользователя
+RUN useradd -m -s /bin/bash daur && \
+    mkdir -p /app /var/log/daur-ai && \
+    chown -R daur:daur /app /var/log/daur-ai
 
-# Создание директорий приложения
-RUN mkdir -p /app/models /app/logs /app/config
 WORKDIR /app
 
-# Копирование requirements.txt и установка зависимостей
-COPY requirements.txt .
+# Копирование и установка Python зависимостей
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir flask flask-cors psutil gunicorn
 
-# Копирование файлов проекта
-COPY --chown=daurai:daurai src/ /app/src/
-COPY --chown=daurai:daurai config/ /app/config/
-COPY --chown=daurai:daurai LICENSE README.md ./
+# Копирование исходного кода
+COPY src/ ./src/
+COPY config/ ./config/
+COPY *.py ./
+COPY *.md ./
 
-# Создание директорий для пользовательских данных
-RUN mkdir -p /data/logs /data/models /data/config && \
-    chown -R daurai:daurai /data
+# Сборка фронтенда
+COPY daur-ai-web-panel/ ./frontend/
+RUN cd frontend && npm install && npm run build
 
-# Настройка переменных окружения для работы в контейнере
-ENV DAUR_AI_CONFIG_PATH=/data/config/config.json \
-    DAUR_AI_LOG_PATH=/data/logs/ \
-    DAUR_AI_MODEL_PATH=/data/models/ \
-    DAUR_AI_SANDBOX=true
+# Nginx конфигурация
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /app/frontend/dist; \
+        try_files $uri /index.html; \
+    } \
+    location /api/ { \
+        proxy_pass http://127.0.0.1:8000; \
+        proxy_set_header Host $host; \
+    } \
+}' > /etc/nginx/sites-available/default
 
-# Настройка объема для персистентности данных
-VOLUME ["/data"]
+# Supervisor конфигурация
+RUN echo '[supervisord] \
+nodaemon=true \n\
+[program:api] \
+command=gunicorn --bind 127.0.0.1:8000 src.web.api_server:app \
+directory=/app \
+user=daur \n\
+[program:nginx] \
+command=nginx -g "daemon off;" \
+' > /etc/supervisor/conf.d/daur-ai.conf
 
-# Переключение на пользователя без привилегий
-USER daurai
+# Установка прав
+RUN chown -R daur:daur /app
 
-# Запуск приложения в консольном режиме
-CMD ["python", "src/main.py", "--ui", "console"]
+EXPOSE 80 8000
 
-# Информация о порте
-EXPOSE 8080
-
-# Документация
-# Использование:
-#   docker build -t daur-ai:latest .
-#   docker run -it --name daur-ai-agent \
-#     -v /path/to/local/data:/data \
-#     --network host \
-#     daur-ai:latest
-
-# Запуск с графическим интерфейсом (требуется настройка X11):
-#   docker run -it --name daur-ai-gui \
-#     -e DISPLAY=$DISPLAY \
-#     -v /tmp/.X11-unix:/tmp/.X11-unix \
-#     -v /path/to/local/data:/data \
-#     daur-ai:latest python src/main.py --ui gui
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/daur-ai.conf"]

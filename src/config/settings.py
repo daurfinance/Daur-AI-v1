@@ -26,6 +26,17 @@ DEFAULT_CONFIG = {
     "input_mode": "console",
     "encrypt_logs": False,
     "os_platform": platform.system(),
+    
+    # AI модели конфигурация
+    "ai_models": {
+        "ollama_host": "http://localhost:11434",
+        "ollama_model": "llama3.2",
+        "ollama_timeout": 30,
+        "openai_model": "gpt-3.5-turbo",
+        "openai_timeout": 30,
+        "max_tokens": 1000,
+        "temperature": 0.7
+    },
     "ui_settings": {
         "console": {
             "prompt": "Daur-AI> ",

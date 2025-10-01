@@ -1,0 +1,118 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (для фронтенда)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Documentation
+docs/_build/
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Development files
+demo*.py
+example*.py
+benchmark*.py
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Screenshots and media
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.avi
+
+# Configuration (может содержать секреты)
+.env
+.env.local
+.env.production
+config/local_*
+config/secret_*
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.tar.gz
+*.zip
+*.rar
+*.7z

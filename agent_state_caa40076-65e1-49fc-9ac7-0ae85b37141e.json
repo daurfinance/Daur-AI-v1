@@ -1,0 +1,21 @@
+{
+  "agent_id": "caa40076-65e1-49fc-9ac7-0ae85b37141e",
+  "stats": {
+    "tasks_completed": 0,
+    "tasks_failed": 12,
+    "commands_executed": 12,
+    "learning_sessions": 0,
+    "uptime_seconds": 10.000885486602783,
+    "devices_controlled": 0,
+    "patterns_learned": 0
+  },
+  "config": {
+    "learning_enabled": true,
+    "auto_mode": false,
+    "debug_mode": true,
+    "max_concurrent_tasks": 3
+  },
+  "completed_tasks_count": 0,
+  "failed_tasks_count": 12,
+  "timestamp": 1759304816.749438
+}

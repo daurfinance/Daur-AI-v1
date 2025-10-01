@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  daur-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: daur-ai-agent
+    restart: unless-stopped
+    ports:
+      - "3000:80"      # Веб-панель
+      - "8000:8000"    # API
+    volumes:
+      - daur_data:/app/data
+      - daur_logs:/var/log/daur-ai
+      - ./config:/app/config:ro
+    environment:
+      - DAUR_API_HOST=0.0.0.0
+      - DAUR_API_PORT=8000
+      - DAUR_AI_SANDBOX=true
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - daur-network
+
+  # Ollama для локальных LLM (опционально)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: daur-ai-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - daur-network
+    profiles:
+      - ollama
+
+  # Redis для кэширования (опционально)
+  redis:
+    image: redis:7-alpine
+    container_name: daur-ai-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - daur-network
+    profiles:
+      - cache
+
+  # PostgreSQL для хранения данных (опционально)
+  postgres:
+    image: postgres:15-alpine
+    container_name: daur-ai-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=daur_ai
+      - POSTGRES_USER=daur
+      - POSTGRES_PASSWORD=daur_password
+    networks:
+      - daur-network
+    profiles:
+      - database
+
+volumes:
+  daur_data:
+    driver: local
+  daur_logs:
+    driver: local
+  ollama_data:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  daur-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

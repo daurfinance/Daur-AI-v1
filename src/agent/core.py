@@ -14,16 +14,37 @@ import sys
 import time
 import logging
 import platform
-from queue import Queue
+import queue
+from queue import Queue, Empty
 from threading import Thread
 
 # Импорты компонентов системы
-from src.input.controller import InputController
+try:
+    from src.input.advanced_controller import create_input_controller
+    InputController = create_input_controller
+except ImportError:
+    try:
+        from src.input.controller import InputController
+    except ImportError:
+        # Используем упрощенную версию если основная недоступна
+        from src.input.simple_controller import SimpleInputController as InputController
 from src.apps.manager import AppManager
 from src.files.manager import FileManager
-from src.parser.command_parser import CommandParser
-from src.ai.model_manager import AIModelManager
+try:
+    from src.parser.enhanced_command_parser import create_enhanced_parser
+    CommandParser = create_enhanced_parser
+except ImportError:
+    from src.parser.command_parser import CommandParser
+try:
+    from src.ai.enhanced_model_manager import EnhancedModelManager as AIModelManager
+except ImportError:
+    try:
+        from src.ai.model_manager import AIModelManager
+    except ImportError:
+        # Используем упрощенную модель если основная недоступна
+        from src.ai.simple_model import MockModelManager as AIModelManager
 from src.logger.logger import ActionLogger
+from src.executor.command_executor import CommandExecutor
 
 
 class DaurAgent:
@@ -61,8 +82,13 @@ class DaurAgent:
                 encrypt=config.get("encrypt_logs", False)
             )
             
-            # Инициализация контроллера ввода (мышь, клавиатура)
-            self.input_controller = InputController(self.os_platform)
+            # Инициализация контроллера ввода
+            if callable(InputController):
+                # Новый интерфейс с фабричной функцией
+                self.input_controller = InputController(self.os_platform)
+            else:
+                # Старый интерфейс с классом
+                self.input_controller = InputController(self.os_platform)
             
             # Инициализация менеджера приложений
             self.app_manager = AppManager(self.os_platform, self.input_controller)
@@ -74,13 +100,36 @@ class DaurAgent:
             )
             
             # Инициализация AI-модели
-            self.ai_manager = AIModelManager(
-                model_path=config["model_path"],
-                timeout=config["advanced"]["model_inference_timeout"]
-            )
+            try:
+                # Проверяем, используется ли EnhancedModelManager
+                if AIModelManager.__name__ == 'EnhancedModelManager':
+                    self.ai_manager = AIModelManager(config)
+                else:
+                    # Старый интерфейс
+                    self.ai_manager = AIModelManager(
+                        model_path=config["model_path"],
+                        timeout=config["advanced"]["model_inference_timeout"]
+                    )
+            except (FileNotFoundError, ImportError) as e:
+                self.logger.warning(f"Не удалось загрузить основную AI-модель ({e}), используется упрощенная версия")
+                from src.ai.simple_model import MockModelManager
+                self.ai_manager = MockModelManager()
             
             # Инициализация парсера команд
-            self.command_parser = CommandParser(self.ai_manager)
+            if callable(CommandParser):
+                # Новый улучшенный парсер
+                self.command_parser = CommandParser(self.ai_manager)
+            else:
+                # Старый парсер
+                self.command_parser = CommandParser(self.ai_manager)
+            
+            # Инициализация исполнителя команд
+            self.command_executor = CommandExecutor(
+                input_controller=self.input_controller,
+                app_manager=self.app_manager,
+                file_manager=self.file_manager,
+                sandbox=sandbox
+            )
             
             # Очередь команд
             self.command_queue = Queue()
@@ -188,76 +237,79 @@ class DaurAgent:
         
         try:
             # Парсинг команды
-            actions = self.command_parser.parse(command)
+            parsed_command = self.command_parser.parse(command)
             
-            if not actions:
+            if not parsed_command or parsed_command.get('command_type') == 'unknown':
+                error_msg = parsed_command.get('parameters', {}).get('error', 'Не удалось распознать команду')
                 self.logger.warning(f"Не удалось распознать команду: {command}")
                 self.action_logger.log_action(
                     command=command,
                     action="parse_failed",
                     result="failure",
-                    error="Не удалось распознать команду"
+                    error=error_msg
                 )
-                self.ui.show_message("Не удалось распознать команду")
+                self.ui.show_message(f"❌ {error_msg}")
                 return
             
-            # Выполнение каждого действия из списка
-            for idx, action in enumerate(actions):
-                self.logger.debug(f"Выполнение действия {idx+1}/{len(actions)}: {action}")
+            # Выполнение команды через исполнителя
+            self.logger.debug(f"Выполнение команды: {parsed_command}")
+            
+            try:
+                # Выполняем команду
+                execution_result = self.command_executor.execute(parsed_command)
                 
-                try:
-                    # Определение типа действия
-                    action_type = action.get("action")
+                # Обработка результата
+                if execution_result.get('success', False):
+                    message = execution_result.get('message', 'Команда выполнена')
+                    self.logger.info(f"Команда выполнена успешно: {message}")
                     
-                    # Выполнение действия в зависимости от типа
-                    if action_type.startswith("input_"):
-                        # Действия с вводом (мышь, клавиатура)
-                        result = self.input_controller.execute_action(action)
-                    
-                    elif action_type.startswith("app_"):
-                        # Действия с приложениями
-                        result = self.app_manager.execute_action(action)
-                    
-                    elif action_type.startswith("file_"):
-                        # Действия с файлами
-                        result = self.file_manager.execute_action(action)
-                    
-                    else:
-                        # Неизвестное действие
-                        self.logger.warning(f"Неизвестный тип действия: {action_type}")
-                        result = False
-                        error = f"Неизвестный тип действия: {action_type}"
-                    
-                    # Логирование результата
-                    if result:
-                        self.action_logger.log_action(
-                            command=command,
-                            action=action,
-                            result="success"
-                        )
-                    else:
-                        self.action_logger.log_action(
-                            command=command,
-                            action=action,
-                            result="failure",
-                            error=error if 'error' in locals() else "Сбой выполнения"
-                        )
-                    
-                    # Пауза между действиями
-                    time.sleep(0.1)
-                
-                except Exception as e:
-                    self.logger.error(f"Ошибка при выполнении действия: {e}", exc_info=True)
+                    # Логирование успешного выполнения
                     self.action_logger.log_action(
                         command=command,
-                        action=action,
-                        result="failure",
-                        error=str(e)
+                        action=parsed_command.get('action', 'unknown'),
+                        result="success",
+                        details=execution_result.get('data', {})
                     )
-                    self.ui.show_message(f"Ошибка: {str(e)}")
+                    
+                    # Показываем результат пользователю
+                    if execution_result.get('data', {}).get('help_text'):
+                        # Специальная обработка справки
+                        self.ui.show_message(execution_result['data']['help_text'])
+                    else:
+                        self.ui.show_message(f"✅ {message}")
+                        
+                        # Дополнительная информация если есть
+                        if 'data' in execution_result:
+                            data = execution_result['data']
+                            if 'file_path' in data:
+                                self.ui.show_message(f"📁 Путь: {data['file_path']}")
+                            elif 'files' in data:
+                                files_info = f"📂 Файлов: {len(data['files'])}"
+                                self.ui.show_message(files_info)
+                
+                else:
+                    error_msg = execution_result.get('message', 'Ошибка выполнения команды')
+                    self.logger.error(f"Ошибка выполнения команды: {error_msg}")
+                    
+                    # Логирование ошибки
+                    self.action_logger.log_action(
+                        command=command,
+                        action=parsed_command.get('action', 'unknown'),
+                        result="failure",
+                        error=error_msg
+                    )
+                    
+            except Exception as e:
+                self.logger.error(f"Ошибка при выполнении команды: {e}", exc_info=True)
+                self.action_logger.log_action(
+                    command=command,
+                    action=parsed_command.get('action', 'unknown'),
+                    result="failure",
+                    error=str(e)
+                )
+                self.ui.show_message(f"❌ Ошибка выполнения: {str(e)}")
             
-            self.logger.info(f"Команда выполнена: {command}")
-            self.ui.show_message("Команда выполнена")
+            self.logger.info(f"Команда обработана: {command}")
             
         except Exception as e:
             self.logger.error(f"Ошибка обработки команды: {e}", exc_info=True)
@@ -278,7 +330,7 @@ class DaurAgent:
                 # Пометка задачи как выполненной
                 self.command_queue.task_done()
                 
-            except Queue.Empty:
+            except Empty:
                 # Очередь пуста, ожидание
                 pass
             except Exception as e:

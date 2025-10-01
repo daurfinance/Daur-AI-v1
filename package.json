@@ -1,0 +1,122 @@
+{
+  "name": "daur-ai",
+  "version": "2.0.0",
+  "description": "Revolutionary Autonomous AI Agent with Computer Vision, System Control and Telegram Integration",
+  "main": "electron-main.js",
+  "homepage": "https://github.com/daurfinance/Daur-AI-v1",
+  "scripts": {
+    "start": "python3 daur_ai_launcher.py",
+    "electron": "electron .",
+    "electron-dev": "electron . --dev",
+    "build": "npm run build-web && electron-builder",
+    "build-web": "cd daur-ai-advanced-panel && npm run build",
+    "dist": "npm run build",
+    "pack": "electron-builder --dir",
+    "install-deps": "pip3 install -r requirements.txt && cd daur-ai-advanced-panel && npm install",
+    "setup": "npm run install-deps && npm run build-web",
+    "test": "python3 -m pytest tests/ -v",
+    "lint": "python3 -m flake8 src/",
+    "clean": "rm -rf dist/ build/ *.egg-info/"
+  },
+  "keywords": [
+    "ai",
+    "artificial-intelligence", 
+    "automation",
+    "computer-vision",
+    "telegram-bot",
+    "electron",
+    "desktop",
+    "system-control",
+    "autonomous-agent",
+    "machine-learning"
+  ],
+  "author": {
+    "name": "Daur Finance",
+    "email": "info@daurfinance.com",
+    "url": "https://daurfinance.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daurfinance/Daur-AI-v1.git"
+  },
+  "bugs": {
+    "url": "https://github.com/daurfinance/Daur-AI-v1/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "electron": "^32.2.6",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.daurfinance.daur-ai",
+    "productName": "Daur-AI",
+    "copyright": "Copyright © 2025 Daur Finance",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron-main.js",
+      "electron-preload.js", 
+      "electron-splash.html",
+      "electron-fallback.html",
+      "daur_ai_launcher.py",
+      "src/**/*",
+      "daur-ai-advanced-panel/dist/**/*",
+      "requirements.txt",
+      "telegram_config.json",
+      "README.md",
+      "LICENSE",
+      "!src/**/*.pyc",
+      "!src/**/__pycache__",
+      "!**/.git",
+      "!**/node_modules/.cache"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "publisherName": "Daur Finance"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Office;Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Daur-AI"
+    }
+  }
+}

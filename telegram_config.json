@@ -1,0 +1,42 @@
+{
+    "telegram": {
+        "bot_token": "YOUR_BOT_TOKEN_HERE",
+        "allowed_users": [],
+        "admin_users": [],
+        "webhook_url": null,
+        "webhook_port": 8443,
+        "max_file_size": 52428800,
+        "supported_formats": {
+            "audio": [".mp3", ".wav", ".ogg", ".m4a", ".flac"],
+            "image": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
+            "document": [".txt", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"],
+            "video": [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+        },
+        "features": {
+            "voice_recognition": true,
+            "file_processing": true,
+            "image_analysis": true,
+            "task_scheduling": true,
+            "system_monitoring": true
+        },
+        "limits": {
+            "max_tasks_per_user": 10,
+            "max_file_size_mb": 50,
+            "rate_limit_messages": 30,
+            "rate_limit_window": 60
+        }
+    },
+    "ai_agent": {
+        "auto_start": true,
+        "default_model": "ollama",
+        "fallback_model": "simple",
+        "task_timeout": 300,
+        "max_concurrent_tasks": 3
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/telegram_bot.log",
+        "max_size": "10MB",
+        "backup_count": 5
+    }
+}
