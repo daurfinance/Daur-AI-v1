@@ -78,3 +78,32 @@ mkdocs/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Node dependencies
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.log
+
+# Telegram
+telegram_env/
