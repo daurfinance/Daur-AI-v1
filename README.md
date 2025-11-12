@@ -10,6 +10,58 @@
 
 **Daur-AI** is a revolutionary autonomous AI agent with computer vision, system control, and Telegram integration. It fully automates computer operations through natural language, providing a seamless and intuitive user experience.
 
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/daurfinance/Daur-AI-v1.git
+cd Daur-AI-v1
+
+# Install dependencies
+pip install -e .
+
+# Or install specific requirements
+pip install -r requirements.txt
+```
+
+### Running the Demo
+
+```bash
+# Test full system with safe_mode (safe for CI/testing)
+python run_demo.py
+
+# Run unit tests
+pytest tests/test_input_controller_full.py -v
+
+# Run integration tests
+pytest tests/ -v
+```
+
+### Basic Usage
+
+```python
+from src.input.controller import InputController
+import asyncio
+
+async def example():
+    # Create controller (safe_mode=True for testing, False for real input)
+    controller = InputController(config={"safe_mode": False})
+    
+    # Mouse and keyboard automation
+    await controller.click(100, 100)  # Click at coordinates
+    await controller.move(200, 200)   # Move mouse
+    await controller.type("Hello!")   # Type text
+    await controller.hotkey("ctrl", "a")  # Hotkey combination
+    
+    # Clipboard operations
+    await controller.clipboard_set("clipboard text")
+    text = await controller.clipboard_get()
+    
+asyncio.run(example())
+```
+
 ## ✨ Key Features
 
 ### 🧠 **Artificial Intelligence**

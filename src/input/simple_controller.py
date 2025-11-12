@@ -1,181 +1,175 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-Daur-AI: Упрощенный контроллер ввода
-Простая реализация без GUI зависимостей для демонстрации
-
-Версия: 1.0
-Дата: 01.10.2025
-"""
-
-import os
-import time
+"""Simple input controller implementation."""
 import logging
 import subprocess
-from typing import Dict, Any, Tuple, Optional
-
+import time
+from typing import Dict, Any, Tuple
 
 class SimpleInputController:
-    """
-    Упрощенный контроллер ввода без зависимостей от pyautogui и pynput
-    Использует системные команды для базовой функциональности
-    """
+    """Basic input controller without dependencies."""
     
-    def __init__(self, os_platform: str):
-        """
-        Инициализация контроллера
+    def __init__(self, os_platform: str = None):
+        """Initialize controller.
         
         Args:
-            os_platform (str): Платформа ОС (Windows, Darwin, Linux)
+            os_platform (str): Operating system platform
         """
-        self.logger = logging.getLogger('daur_ai.simple_input')
-        self.os_platform = os_platform
-        self.logger.info(f"Инициализация упрощенного контроллера ввода для {os_platform}")
+        self.logger = logging.getLogger(__name__)
+        self.os_platform = os_platform or "unknown"
     
-    def execute_action(self, action: Dict[str, Any]) -> bool:
-        """
-        Выполнение действия ввода
+    def execute(self, action: Dict[str, Any]) -> bool:
+        """Execute an input action.
         
         Args:
-            action (Dict): Описание действия
+            action (Dict): Action description with parameters
             
         Returns:
-            bool: Успешность выполнения
+            bool: True if action was executed successfully
         """
-        action_type = action.get('action', '')
-        self.logger.info(f"Выполнение действия: {action_type}")
-        
         try:
-            if action_type == 'input_click':
-                return self._simulate_click(action)
-            elif action_type == 'input_type':
-                return self._simulate_typing(action)
-            elif action_type == 'input_key':
-                return self._simulate_key_press(action)
+            action_type = action.get("type", "")
+            params = action.get("params", {})
+            
+            if action_type == "click":
+                return self._handle_click(params)
+            elif action_type == "type":
+                return self._handle_type(params)
+            elif action_type == "key":
+                return self._handle_key(params)
+            elif action_type == "sequence":
+                return self._handle_sequence(params)
             else:
-                self.logger.warning(f"Неизвестное действие ввода: {action_type}")
+                self.logger.warning(f"Unknown action type: {action_type}")
                 return False
                 
         except Exception as e:
-            self.logger.error(f"Ошибка выполнения действия {action_type}: {e}")
+            self.logger.error(f"Error executing action: {e}", exc_info=True)
             return False
-    
-    def _simulate_click(self, action: Dict[str, Any]) -> bool:
-        """
-        Симуляция клика мыши
+            
+    def _handle_click(self, params: Dict[str, Any]) -> bool:
+        """Handle click action.
         
         Args:
-            action (Dict): Параметры клика
+            params (Dict): Click parameters including target
             
         Returns:
-            bool: Успешность выполнения
+            bool: True if click was simulated successfully
         """
-        target = action.get('params', {}).get('target', 'неизвестная цель')
-        self.logger.info(f"Симуляция клика по: {target}")
-        
-        # В упрощенной версии просто логируем действие
-        print(f"[СИМУЛЯЦИЯ] Клик по: {target}")
-        time.sleep(0.1)  # Имитация времени выполнения
+        target = params.get('target', 'unknown target')
+        self.logger.info(f"Simulating click on: {target}")
+        print(f"[SIMULATION] Click on: {target}")
+        time.sleep(0.1)  # Simulate execution time
         return True
     
-    def _simulate_typing(self, action: Dict[str, Any]) -> bool:
-        """
-        Симуляция ввода текста
+    def _handle_type(self, params: Dict[str, Any]) -> bool:
+        """Handle text input action.
         
         Args:
-            action (Dict): Параметры ввода
+            params (Dict): Type parameters including text and target
             
         Returns:
-            bool: Успешность выполнения
+            bool: True if typing was simulated successfully
         """
-        text = action.get('params', {}).get('text', '')
-        self.logger.info(f"Симуляция ввода текста: {text[:50]}...")
+        text = params.get('text', '')
+        target = params.get('target')
         
-        # В упрощенной версии просто логируем действие
-        print(f"[СИМУЛЯЦИЯ] Ввод текста: {text}")
-        time.sleep(len(text) * 0.01)  # Имитация времени набора
+        if target:
+            self.logger.info(f"Simulating typing: {text[:50]}... in {target}")
+            print(f"[SIMULATION] Typing text: {text} in {target}")
+        else:
+            self.logger.info(f"Simulating typing: {text[:50]}...")
+            print(f"[SIMULATION] Typing text: {text}")
+            
+        time.sleep(len(text) * 0.01)  # Simulate typing time
         return True
     
-    def _simulate_key_press(self, action: Dict[str, Any]) -> bool:
-        """
-        Симуляция нажатия клавиши
+    def _handle_key(self, params: Dict[str, Any]) -> bool:
+        """Handle key press action.
         
         Args:
-            action (Dict): Параметры нажатия
+            params (Dict): Key parameters including key name
             
         Returns:
-            bool: Успешность выполнения
+            bool: True if key press was simulated successfully
         """
-        key = action.get('params', {}).get('key', 'неизвестная клавиша')
-        self.logger.info(f"Симуляция нажатия клавиши: {key}")
-        
-        # В упрощенной версии просто логируем действие
-        print(f"[СИМУЛЯЦИЯ] Нажатие клавиши: {key}")
+        key = params.get('key', 'unknown key')
+        self.logger.info(f"Simulating key press: {key}")
+        print(f"[SIMULATION] Pressing key: {key}")
         time.sleep(0.1)
         return True
     
-    def get_mouse_position(self) -> Tuple[int, int]:
-        """
-        Получение текущей позиции мыши
+    def _handle_sequence(self, params: Dict[str, Any]) -> bool:
+        """Handle sequence of actions.
         
+        Args:
+            params (Dict): Sequence parameters including list of commands
+            
         Returns:
-            Tuple[int, int]: Координаты (x, y)
+            bool: True if all actions in sequence were executed successfully
         """
-        # В упрощенной версии возвращаем фиктивные координаты
-        return (100, 100)
+        commands = params.get('commands', [])
+        success = True
+        
+        for cmd in commands:
+            if not self.execute(cmd):
+                success = False
+                self.logger.warning(f"Failed to execute command in sequence: {cmd}")
+        
+        return success
     
     def get_screen_size(self) -> Tuple[int, int]:
-        """
-        Получение размера экрана
+        """Get screen size.
         
         Returns:
-            Tuple[int, int]: Размер (width, height)
+            Tuple[int, int]: Screen dimensions (width, height)
         """
-        # Попытка получить размер экрана через системные команды
         try:
             if self.os_platform == "Linux":
                 result = subprocess.run(['xrandr'], capture_output=True, text=True)
                 if result.returncode == 0:
-                    # Парсинг вывода xrandr для получения разрешения
                     for line in result.stdout.split('\n'):
-                        if '*' in line:  # Текущее разрешение
+                        if '*' in line:  # Current resolution
                             parts = line.split()
                             for part in parts:
                                 if 'x' in part and part.replace('x', '').replace('.', '').isdigit():
                                     width, height = part.split('x')
                                     return (int(width), int(height.split('.')[0]))
         except Exception as e:
-            self.logger.debug(f"Не удалось получить размер экрана: {e}")
+            self.logger.debug(f"Failed to get screen size: {e}")
         
-        # Возвращаем стандартное разрешение по умолчанию
+        # Return default resolution
         return (1920, 1080)
     
+    def get_mouse_position(self) -> Tuple[int, int]:
+        """Get current mouse position.
+        
+        Returns:
+            Tuple[int, int]: Mouse coordinates (x, y)
+        """
+        # In simple version return dummy coordinates
+        return (100, 100)
+    
     def cleanup(self):
-        """Очистка ресурсов контроллера"""
-        self.logger.info("Очистка упрощенного контроллера ввода")
-        pass
-
-
-# Функция для создания контроллера в зависимости от доступности зависимостей
-def create_input_controller(os_platform: str):
-    """
-    Создание контроллера ввода с автоматическим выбором реализации
+        """Clean up controller resources."""
+        self.logger.info("Cleaning up simple input controller")
+        
+# Function to create controller based on dependency availability
+def create_input_controller(os_platform: str = None):
+    """Create appropriate input controller.
     
     Args:
-        os_platform (str): Платформа ОС
+        os_platform (str): Operating system platform
         
     Returns:
-        InputController: Экземпляр контроллера
+        InputController: Controller instance
     """
     try:
-        # Попытка импорта полной версии
+        # Try importing full version
         from src.input.controller import InputController
         return InputController(os_platform)
     except ImportError as e:
-        # Используем упрощенную версию
+        # Use simple version
         logging.getLogger('daur_ai').warning(
-            f"Не удалось загрузить полный контроллер ввода ({e}), "
-            "используется упрощенная версия"
+            f"Failed to load full input controller ({e}), "
+            "using simple version"
         )
         return SimpleInputController(os_platform)

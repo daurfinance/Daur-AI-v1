@@ -2,12 +2,231 @@
 # -*- coding: utf-8 -*-
 
 """
-Daur-AI: Менеджер AI-моделей
-Модуль для загрузки, инициализации и использования локальных моделей ИИ
-
-Версия: 1.0
-Дата: 09.05.2025
+Model Manager for AI Integration
+Handles different AI models and provides unified interface.
 """
+
+import logging
+from typing import Dict, Any, Optional, List
+import asyncio
+from pathlib import Path
+import json
+
+try:
+    import torch
+    from transformers import pipeline, AutoTokenizer, AutoModel
+    TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    TRANSFORMERS_AVAILABLE = False
+
+try:
+    from llama_cpp import Llama
+    LLAMA_AVAILABLE = True
+except ImportError:
+    LLAMA_AVAILABLE = False
+
+class ModelType:
+    TRANSFORMERS = "transformers"
+    LLAMA = "llama"
+    OLLAMA = "ollama"
+
+class ModelManager:
+    """
+    Manages AI models and provides unified interface for:
+    - Text generation
+    - Command understanding
+    - Task planning
+    - Context management
+    """
+    
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize model manager.
+        
+        Args:
+            config: Model configuration
+        """
+        self.config = config
+        self.logger = logging.getLogger(__name__)
+        
+        # Model instances
+        self.models = {}
+        self.active_model = None
+        self.model_type = None
+        
+        # Model paths
+        self.models_dir = Path(config.get("models_dir", "models"))
+        self.models_dir.mkdir(exist_ok=True)
+        
+        # Performance settings
+        self.max_tokens = config.get("max_tokens", 512)
+        self.temperature = config.get("temperature", 0.7)
+        self.streaming = config.get("streaming", True)
+        
+        # Initialize models
+        self._initialize_models()
+        
+    def _initialize_models(self):
+        """Initialize AI models based on configuration."""
+        model_type = self.config.get("type", "llama").lower()
+        
+        try:
+            if model_type == ModelType.TRANSFORMERS and TRANSFORMERS_AVAILABLE:
+                self._init_transformers()
+            elif model_type == ModelType.LLAMA and LLAMA_AVAILABLE:
+                self._init_llama()
+            elif model_type == ModelType.OLLAMA:
+                self._init_ollama()
+            else:
+                raise ValueError(f"Unsupported model type: {model_type}")
+                
+            self.model_type = model_type
+            self.logger.info(f"Initialized {model_type} model successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to initialize {model_type} model: {e}")
+            raise
+            
+    def _init_transformers(self):
+        """Initialize Transformers models."""
+        model_name = self.config.get("model_name", "gpt2")
+        
+        self.models["generator"] = pipeline(
+            "text-generation",
+            model=model_name,
+            tokenizer=model_name,
+            device=0 if torch.cuda.is_available() else -1
+        )
+        
+        self.models["tokenizer"] = AutoTokenizer.from_pretrained(model_name)
+        self.active_model = "generator"
+        
+    def _init_llama(self):
+        """Initialize Llama model."""
+        model_path = self.models_dir / self.config.get("model_file", "model.gguf")
+        
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model file not found: {model_path}")
+            
+        self.models["llama"] = Llama(
+            model_path=str(model_path),
+            n_ctx=2048,
+            n_threads=self.config.get("threads", 4)
+        )
+        self.active_model = "llama"
+        
+    def _init_ollama(self):
+        """Initialize Ollama connection."""
+        import requests
+        
+        self.ollama_url = self.config.get("ollama_url", "http://localhost:11434")
+        self.ollama_model = self.config.get("ollama_model", "llama2")
+        
+        # Test connection
+        try:
+            response = requests.get(f"{self.ollama_url}/api/tags")
+            if response.status_code != 200:
+                raise ConnectionError("Failed to connect to Ollama server")
+            self.active_model = "ollama"
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Ollama: {e}")
+            
+    async def generate(self, 
+                      prompt: str,
+                      max_tokens: Optional[int] = None,
+                      temperature: Optional[float] = None,
+                      stop: Optional[List[str]] = None) -> str:
+        """
+        Generate text based on prompt.
+        
+        Args:
+            prompt: Input prompt
+            max_tokens: Maximum tokens to generate
+            temperature: Sampling temperature
+            stop: Stop sequences
+            
+        Returns:
+            Generated text
+        """
+        max_tokens = max_tokens or self.max_tokens
+        temperature = temperature or self.temperature
+        
+        try:
+            if self.model_type == ModelType.TRANSFORMERS:
+                return await self._generate_transformers(prompt, max_tokens, temperature)
+            elif self.model_type == ModelType.LLAMA:
+                return await self._generate_llama(prompt, max_tokens, temperature)
+            elif self.model_type == ModelType.OLLAMA:
+                return await self._generate_ollama(prompt, max_tokens, temperature, stop)
+            else:
+                raise ValueError(f"Unknown model type: {self.model_type}")
+                
+        except Exception as e:
+            self.logger.error(f"Generation failed: {e}")
+            raise
+            
+    async def _generate_transformers(self, prompt: str, max_tokens: int, temperature: float) -> str:
+        """Generate text using Transformers."""
+        outputs = self.models["generator"](
+            prompt,
+            max_length=len(self.models["tokenizer"].encode(prompt)) + max_tokens,
+            temperature=temperature,
+            num_return_sequences=1
+        )
+        return outputs[0]["generated_text"][len(prompt):]
+        
+    async def _generate_llama(self, prompt: str, max_tokens: int, temperature: float) -> str:
+        """Generate text using Llama."""
+        output = self.models["llama"](
+            prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            stop=["</s>", "\n\n"]
+        )
+        return output["choices"][0]["text"]
+        
+    async def _generate_ollama(self, 
+                             prompt: str, 
+                             max_tokens: int, 
+                             temperature: float,
+                             stop: Optional[List[str]] = None) -> str:
+        """Generate text using Ollama."""
+        import aiohttp
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{self.ollama_url}/api/generate",
+                json={
+                    "model": self.ollama_model,
+                    "prompt": prompt,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "stop": stop or []
+                }
+            ) as response:
+                if response.status != 200:
+                    raise RuntimeError(f"Ollama request failed: {await response.text()}")
+                    
+                result = await response.json()
+                return result["response"]
+                
+    async def start(self):
+        """Start model manager."""
+        self.logger.info("Model manager started")
+        
+    async def stop(self):
+        """Stop model manager and release resources."""
+        self.models.clear()
+        self.logger.info("Model manager stopped")
+        
+    def get_status(self) -> Dict[str, Any]:
+        """Get current status."""
+        return {
+            "type": self.model_type,
+            "active_model": self.active_model,
+            "models": list(self.models.keys()),
+            "config": self.config
+        }
 
 import os
 import time

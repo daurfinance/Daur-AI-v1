@@ -1,0 +1,1 @@
+"""Common platform input handling."""

@@ -1,32 +1,41 @@
-# Daur-AI требования пакетов
-# Версия: 1.0
-# Дата: 09.05.2025
+# Daur-AI v2.0 Requirements
+# Last Updated: 2025-11-12
 
-# Основные пакеты
+# ==================== Core Dependencies ====================
 numpy>=1.20.0
+psutil>=5.8.0
 pynput>=1.7.0
 pillow>=8.0.0
-psutil>=5.8.0
 
-# Пакеты для ИИ-компонентов
-torch>=1.10.0
+# ==================== Input Control ====================
+# Real mouse/keyboard automation
+pyautogui>=0.9.53
+pyperclip>=1.8.0
+
+# Platform-specific
+python-xlib>=0.27; platform_system=='Linux'
+pywin32>=228; platform_system=='Windows'
+pyobjc-framework-Cocoa>=7.0; platform_system=='Darwin'
+
+# ==================== Browser Automation ====================
+playwright>=1.40.0
+
+# ==================== AI & ML (Optional) ====================
+torch>=1.10.0; platform_machine!='arm64'
 transformers>=4.18.0
 llama-cpp-python>=0.1.0
+
+# ONNX runtime
 onnxruntime>=1.10.0; platform_system!='Darwin' or platform_machine!='arm64'
 onnxruntime-silicon>=1.8.0; platform_system=='Darwin' and platform_machine=='arm64'
 
-# Пакеты для GUI
-tk>=0.1.0; platform_system!='Darwin'
-pyobjc-framework-Cocoa>=7.0; platform_system=='Darwin'
+# ==================== Security ====================
+cryptography>=44.0.3
 
-# Платформенно-зависимые пакеты
-pywin32>=228; platform_system=='Windows'
-pygetwindow>=0.0.9; platform_system=='Windows'
-pyautogui>=0.9.53
-
-# Утилиты для разработки
+# ==================== Development & Testing ====================
 pytest>=6.2.5
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
 black>=21.5b2
 flake8>=3.9.2
 mypy>=0.812
-cryptography==44.0.3
