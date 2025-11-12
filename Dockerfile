@@ -1,72 +1,40 @@
-# Daur-AI Docker Container
-FROM python:3.11-slim
+FROM ubuntu:22.04
 
-# Метаданные
-LABEL maintainer="Daur-AI Team"
-LABEL version="1.1"
-LABEL description="Daur-AI - Автономный ИИ-агент с веб-панелью управления"
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV DISPLAY=:99
 
-# Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    git \
+    python3.10 \
+    python3-pip \
+    xvfb \
+    scrot \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    libx11-dev \
+    libxtst-dev \
     wget \
-    nodejs \
-    npm \
-    nginx \
-    supervisor \
+    curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Создание пользователя
-RUN useradd -m -s /bin/bash daur && \
-    mkdir -p /app /var/log/daur-ai && \
-    chown -R daur:daur /app /var/log/daur-ai
 
 WORKDIR /app
 
-# Копирование и установка Python зависимостей
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir flask flask-cors psutil gunicorn
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Копирование исходного кода
-COPY src/ ./src/
-COPY config/ ./config/
-COPY *.py ./
-COPY *.md ./
+RUN python3 -m playwright install chromium
+RUN python3 -m playwright install-deps
 
-# Сборка фронтенда
-COPY daur-ai-web-panel/ ./frontend/
-RUN cd frontend && npm install && npm run build
+COPY . .
 
-# Nginx конфигурация
-RUN echo 'server { \
-    listen 80; \
-    location / { \
-        root /app/frontend/dist; \
-        try_files $uri /index.html; \
-    } \
-    location /api/ { \
-        proxy_pass http://127.0.0.1:8000; \
-        proxy_set_header Host $host; \
-    } \
-}' > /etc/nginx/sites-available/default
+RUN mkdir -p /app/data /app/logs
 
-# Supervisor конфигурация
-RUN echo '[supervisord] \
-nodaemon=true \n\
-[program:api] \
-command=gunicorn --bind 127.0.0.1:8000 src.web.api_server:app \
-directory=/app \
-user=daur \n\
-[program:nginx] \
-command=nginx -g "daemon off;" \
-' > /etc/supervisor/conf.d/daur-ai.conf
+RUN useradd -m -u 1000 daur && chown -R daur:daur /app
+USER daur
 
-# Установка прав
-RUN chown -R daur:daur /app
+EXPOSE 8000
 
-EXPOSE 80 8000
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/daur-ai.conf"]
+CMD Xvfb :99 -screen 0 1920x1080x24 & python3 -m src.main
