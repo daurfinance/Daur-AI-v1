@@ -73,7 +73,7 @@ class BrowserAutomation:
             
         try:
             return await self.page.wait_for_selector(selector, timeout=timeout)
-        except:
+        except Exception as e:
             return None
             
     async def click(self, selector: str) -> bool:
@@ -273,7 +273,7 @@ class BrowserAutomation:
         try:
             await self.page.wait_for_load_state("networkidle", timeout=timeout)
             return True
-        except:
+        except Exception as e:
             return False
             
     async def screenshot(self, path: Path) -> bool:
@@ -337,7 +337,7 @@ class BrowserAutomation:
                 state=state
             )
             return True
-        except:
+        except Exception as e:
             return False
             
     async def get_elements(self, selector: str) -> List[ElementHandle]:
@@ -354,7 +354,7 @@ class BrowserAutomation:
             
         try:
             return await self.page.query_selector_all(selector)
-        except:
+        except Exception as e:
             return []
             
     async def fill_form(self, form_data: Dict[str, str]) -> bool:

@@ -41,8 +41,8 @@ class DaurAgent:
                 from src.input.simple_controller import SimpleInputController
                 self.input = SimpleInputController()
                 self.logger.info("✓ SimpleInputController loaded")
-            except:
-                self.logger.error("✗ No input controller available")
+            except (ImportError, AttributeError, Exception) as e:
+                self.logger.error(f"✗ No input controller available: {e}")
                 self.input = None
 
         # Command parser

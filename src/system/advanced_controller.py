@@ -120,7 +120,7 @@ class AdvancedSystemController:
                         'free': usage.free,
                         'percent': (usage.used / usage.total) * 100
                     }
-                except:
+                except Exception as e:
                     continue
             
             # Сетевые интерфейсы
@@ -282,7 +282,7 @@ class AdvancedSystemController:
                         'used': usage.used,
                         'free': usage.free
                     }
-                except:
+                except Exception as e:
                     continue
             
             self.logger.info(f"Найдено файловых систем: {len(self.mounted_filesystems)}")

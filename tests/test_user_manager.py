@@ -126,8 +126,8 @@ def test_list_users(user_manager):
     active_users = user_manager.list_users(active_only=True)
     assert len(active_users) == 2
     
-    # Получаем всех пользователей с ролью USER
-    user_role_users = user_manager.list_users(role=UserRole.USER)
+    # Получаем всех пользователей с ролью USER (включая неактивных)
+    user_role_users = user_manager.list_users(role=UserRole.USER, active_only=False)
     assert len(user_role_users) == 2
     
     # Получаем всех пользователей

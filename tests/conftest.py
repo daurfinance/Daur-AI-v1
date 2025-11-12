@@ -2,7 +2,80 @@ import pytest
 from typing import Generator
 import os
 import tempfile
+import subprocess
+import time
 from pathlib import Path
+
+# Xvfb display configuration
+XVFB_DISPLAY = ":99"
+XVFB_RESOLUTION = "1920x1080x24"
+
+@pytest.fixture(scope="session")
+def xvfb_display():
+    """
+    Start Xvfb virtual display for headless GUI testing.
+    
+    This fixture starts an Xvfb server at the beginning of the test session
+    and stops it at the end. All GUI tests can use this display.
+    """
+    # Check if we're already running in a display environment
+    if os.environ.get("DISPLAY"):
+        # Already have a display, no need for Xvfb
+        yield os.environ.get("DISPLAY")
+        return
+    
+    # Start Xvfb
+    xvfb_process = subprocess.Popen(
+        ["Xvfb", XVFB_DISPLAY, "-screen", "0", XVFB_RESOLUTION],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    
+    # Set DISPLAY environment variable
+    os.environ["DISPLAY"] = XVFB_DISPLAY
+    
+    # Wait for Xvfb to start
+    time.sleep(2)
+    
+    # Verify Xvfb is running
+    try:
+        subprocess.run(
+            ["xdpyinfo", "-display", XVFB_DISPLAY],
+            check=True,
+            capture_output=True,
+            timeout=5
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        xvfb_process.kill()
+        pytest.skip("Xvfb failed to start")
+    
+    yield XVFB_DISPLAY
+    
+    # Cleanup: stop Xvfb
+    xvfb_process.terminate()
+    try:
+        xvfb_process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        xvfb_process.kill()
+    
+    # Clean up environment
+    if "DISPLAY" in os.environ:
+        del os.environ["DISPLAY"]
+
+
+@pytest.fixture
+def gui_environment(xvfb_display):
+    """
+    Fixture for tests that require GUI/display.
+    
+    Usage:
+        @pytest.mark.gui
+        def test_something(gui_environment):
+            # Test code that needs display
+            pass
+    """
+    return xvfb_display
+
 
 @pytest.fixture
 def temp_workspace() -> Generator[Path, None, None]:

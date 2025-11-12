@@ -1,3 +1,12 @@
+"""Daur AI User Management System
+
+This module provides comprehensive user management with role-based access control (RBAC).
+Supports user authentication, authorization, permissions, and role management.
+
+Version: 2.0
+Date: 2025-11-12
+"""
+
 from typing import Dict, Any, Optional, List, Set
 import logging
 from pathlib import Path
@@ -199,7 +208,7 @@ class UserManager:
         try:
             stored_hash = user_data["password_hash"].encode()
             return hasher.checkpw(password.encode(), stored_hash)
-        except:
+        except Exception as e:
             return False
             
     def get_user_permissions(self, username: str) -> Set[str]:

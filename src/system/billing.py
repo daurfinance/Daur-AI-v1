@@ -1,3 +1,12 @@
+"""Daur AI Billing System
+
+This module provides comprehensive billing and subscription management functionality.
+Supports multiple subscription tiers, payment processing, and usage tracking.
+
+Version: 2.0
+Date: 2025-11-12
+"""
+
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 import logging

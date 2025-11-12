@@ -162,7 +162,7 @@ class OpenAIModelManager:
                 try:
                     error_data = response.json()
                     error_msg += f" - {error_data.get('error', {}).get('message', '')}"
-                except:
+                except Exception as e:
                     pass
                 self.logger.error(error_msg)
                 return error_msg

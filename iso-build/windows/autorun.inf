@@ -1,0 +1,5 @@
+[autorun]
+open=install.bat
+icon=resources\icon.ico
+label=Daur-AI v2.0 Installer
+action=Install Daur-AI v2.0

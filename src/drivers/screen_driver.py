@@ -71,15 +71,15 @@ class ScreenDriver:
             try:
                 self.libx11 = ctypes.CDLL(ctypes.util.find_library('X11'))
                 self.logger.info("X11 библиотека загружена")
-            except:
-                self.logger.warning("X11 библиотека недоступна")
+            except Exception as e:
+                self.logger.warning(f"X11 библиотека недоступна: {e}")
             
             # Загружаем OpenGL если доступен
             try:
                 self.libgl = ctypes.CDLL(ctypes.util.find_library('GL'))
                 self.logger.info("OpenGL библиотека загружена")
-            except:
-                self.logger.warning("OpenGL библиотека недоступна")
+            except (IOError, OSError, FileNotFoundError) as e:
+                self.logger.warning(f"OpenGL библиотека недоступна: {e}")
                 
         except Exception as e:
             self.logger.error(f"Ошибка инициализации системных библиотек: {e}")

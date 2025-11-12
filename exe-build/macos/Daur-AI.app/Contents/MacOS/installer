@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "Установка Daur-AI v2.0..."
+mkdir -p ~/Applications/Daur-AI
+echo "#!/usr/bin/env python3" > ~/Applications/Daur-AI/main.py
+echo "print(\"Daur-AI v2.0 запущен!\")" >> ~/Applications/Daur-AI/main.py
+chmod +x ~/Applications/Daur-AI/main.py
+echo "Установка завершена!"

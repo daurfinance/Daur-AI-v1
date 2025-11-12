@@ -87,8 +87,8 @@ class InputDriver:
             try:
                 self.libudev = ctypes.CDLL(ctypes.util.find_library('udev'))
                 self.logger.info("udev библиотека загружена")
-            except:
-                self.logger.warning("udev библиотека недоступна")
+            except Exception as e:
+                self.logger.warning(f"udev библиотека недоступна: {e}")
                 self.libudev = None
             
         except Exception as e:
@@ -165,7 +165,7 @@ class InputDriver:
             try:
                 fcntl.ioctl(fd, EVIOCGNAME, name_buffer)
                 device_name = name_buffer.value.decode('utf-8', errors='ignore')
-            except:
+            except Exception as e:
                 device_name = "Unknown Device"
             
             # EVIOCGID - получить ID устройства
@@ -175,7 +175,7 @@ class InputDriver:
             try:
                 fcntl.ioctl(fd, EVIOCGID, id_buffer)
                 vendor, product, version, bustype = struct.unpack('HHHH', id_buffer.raw)
-            except:
+            except Exception as e:
                 vendor = product = version = bustype = 0
             
             # Определяем возможности устройства
@@ -224,7 +224,7 @@ class InputDriver:
                     if supported_codes:
                         capabilities[ev_type] = supported_codes
                         
-                except:
+                except Exception as e:
                     continue
             
             return capabilities
@@ -307,7 +307,7 @@ class InputDriver:
             for key_code in range(1, 256):
                 try:
                     fcntl.ioctl(self.virtual_keyboard_fd, UI_SET_KEYBIT, key_code)
-                except:
+                except Exception as e:
                     continue
             
             # Создаем устройство
@@ -652,7 +652,7 @@ class InputDriver:
             for device in self.input_devices.values():
                 try:
                     os.close(device['fd'])
-                except:
+                except Exception as e:
                     pass
             
             self.input_devices.clear()

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.daur.ai</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Daur-AI</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.15</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2025 Daur Finance. All rights reserved.</string>
+	<key>NSRequiresIPhoneOS</key>
+	<false/>
+	<key>NSBonjourServiceTypes</key>
+	<array>
+		<string>_daur-ai._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Daur-AI needs access to your local network to connect to the API server.</string>
+	<key>NSBonjourServiceTypes</key>
+	<array>
+		<string>_daur-ai._tcp</string>
+	</array>
+</dict>
+</plist>
+

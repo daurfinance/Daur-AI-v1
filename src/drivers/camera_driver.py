@@ -563,7 +563,7 @@ class CameraDriver:
             try:
                 buf_type = ctypes.c_int(V4L2_BUF_TYPE_VIDEO_CAPTURE)
                 fcntl.ioctl(fd, VIDIOC_STREAMOFF, buf_type)
-            except:
+            except Exception as e:
                 pass
             
             # Очищаем буферы
@@ -571,7 +571,7 @@ class CameraDriver:
                 for buffer_info in self.frame_buffers[device_path]:
                     try:
                         buffer_info['map'].close()
-                    except:
+                    except Exception as e:
                         pass
                 del self.frame_buffers[device_path]
             
@@ -605,7 +605,7 @@ class CameraDriver:
             for device in self.camera_devices.values():
                 try:
                     os.close(device['fd'])
-                except:
+                except Exception as e:
                     pass
             
             self.camera_devices.clear()
