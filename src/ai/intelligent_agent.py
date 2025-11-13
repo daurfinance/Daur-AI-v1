@@ -322,6 +322,11 @@ Create plan for: "{command}"
             await self.controller.hotkey("command", "space")
             await asyncio.sleep(1)
             
+            # Switch to English keyboard layout (Ctrl+Space on macOS)
+            print("   📝 Переключаю раскладку на английскую (Ctrl+Space)...")
+            await self.controller.hotkey("ctrl", "space")
+            await asyncio.sleep(0.5)
+            
             print(f"   2️⃣ Ввожу '{app_name}'...")
             LOG.info(f"Step 2: Type '{app_name}'")
             await self.controller.type(app_name)
