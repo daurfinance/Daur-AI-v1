@@ -93,26 +93,34 @@ class InputController:
 
     async def key(self, key: str, hold: bool = False) -> None:
         """Press/release keyboard key."""
+        print(f"[InputController] Key called: '{key}', hold={hold}, safe_mode={self.safe_mode}")
         if self.safe_mode:
             LOG.debug(f"[SAFE] Key {key} ({'hold' if hold else 'press'})")
             return
         if hold:
+            print(f"[InputController] Executing pyautogui.keyDown('{key}')")
             await self._run_input(lambda: pyautogui.keyDown(key))
         else:
             # Press and release the key
+            print(f"[InputController] Executing pyautogui.press('{key}')")
             await self._run_input(lambda: pyautogui.press(key))
+        print(f"[InputController] Key completed")
 
     async def type(self, text: str, interval: Optional[float] = None) -> None:
         """Type text string."""
+        print(f"[InputController] Type called: '{text}', safe_mode={self.safe_mode}")
         if self.safe_mode:
             LOG.debug(f"[SAFE] Type: {text}")
             return
         # pyautogui requires interval to be a number, not None
         intv = interval if interval is not None else self.keyboard_delay
+        print(f"[InputController] Executing pyautogui.write('{text}', interval={intv})")
         await self._run_input(lambda: pyautogui.write(text, interval=intv))
+        print(f"[InputController] Type completed")
 
     async def hotkey(self, *keys: str) -> None:
         """Press key combination."""
+        print(f"[InputController] Hotkey called: {'+'.join(keys)}, safe_mode={self.safe_mode}")
         if self.safe_mode:
             LOG.debug(f"[SAFE] Hotkey: {'+'.join(keys)}")
             return
@@ -120,7 +128,9 @@ class InputController:
         if platform.system() == "Darwin":
             if keys[0].lower() in ["ctrl", "cmd"] and len(keys) > 1 and keys[-1].lower() in "cvxazfsop":
                 keys = ("cmd",) + keys[1:]
+        print(f"[InputController] Executing pyautogui.hotkey({', '.join(keys)})")
         await self._run_input(lambda: pyautogui.hotkey(*keys))
+        print(f"[InputController] Hotkey completed")
 
     # ==================== Clipboard Methods ====================
 

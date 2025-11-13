@@ -314,16 +314,25 @@ Create plan for: "{command}"
         
         if action_type == "open_app":
             app_name = params.get('app', '')
+            print(f"\n🔧 Открываю приложение: {app_name}")
             LOG.info(f"Opening app: {app_name}")
+            
+            print("   1️⃣ Нажимаю Cmd+Space (Spotlight)...")
             LOG.info("Step 1: Press Cmd+Space for Spotlight")
             await self.controller.hotkey("command", "space")
             await asyncio.sleep(1)
+            
+            print(f"   2️⃣ Ввожу '{app_name}'...")
             LOG.info(f"Step 2: Type '{app_name}'")
             await self.controller.type(app_name)
             await asyncio.sleep(0.5)
+            
+            print("   3️⃣ Нажимаю Enter...")
             LOG.info("Step 3: Press Enter")
             await self.controller.key("enter")
             await asyncio.sleep(2)
+            
+            print(f"   ✅ {app_name} должен открыться!\n")
             LOG.info(f"App {app_name} should be opened")
             return f"Opened {app_name}"
         
