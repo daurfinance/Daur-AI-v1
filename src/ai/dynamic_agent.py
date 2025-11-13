@@ -264,7 +264,7 @@ Decide now - what's the next action?
                 # Auto-switch layout if needed
                 if self._needs_english_layout(text):
                     print("   📝 Переключаю раскладку на английскую...")
-                    layout_switch = self.system_profile['shortcuts']['keyboard_layout_switch']
+                    layout_switch = self.system_profile['keyboard'].get('switch_shortcut', 'ctrl+space')
                     if '+' in layout_switch:
                         keys = layout_switch.split('+')
                         await self.controller.hotkey(*keys)
@@ -309,7 +309,7 @@ Decide now - what's the next action?
         
         # Switch to English layout if needed
         if self._needs_english_layout(app_name):
-            layout_switch = self.system_profile['shortcuts']['keyboard_layout_switch']
+            layout_switch = self.system_profile['keyboard'].get('switch_shortcut', 'ctrl+space')
             if '+' in layout_switch:
                 keys = layout_switch.split('+')
                 await self.controller.hotkey(*keys)
@@ -346,8 +346,8 @@ Decide now - what's the next action?
         return f"""- OS: {os_info['system']} {os_info['version']}
 - Screen: {screen.get('resolution', 'Unknown')}
 - Keyboard Layout: {keyboard['current_layout']}
-- Layout Switch: {shortcuts['keyboard_layout_switch']}
-- Spotlight: {shortcuts['spotlight']}
+- Layout Switch: {keyboard.get('switch_shortcut', 'ctrl+space')}
+- Spotlight: {shortcuts.get('spotlight', 'command+space')}
 - Installed Apps: {len(self.system_profile['applications'])} apps"""
     
     def _build_actions_history(self, actions_taken: list) -> str:
