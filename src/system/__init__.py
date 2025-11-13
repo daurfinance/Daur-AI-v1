@@ -4,5 +4,6 @@
 """
 
 from .advanced_controller import AdvancedSystemController
+from .system_profiler import SystemProfiler
 
-__all__ = ['AdvancedSystemController']
+__all__ = ['AdvancedSystemController', 'SystemProfiler']
