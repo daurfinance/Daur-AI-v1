@@ -106,7 +106,9 @@ class IntelligentAgent:
             }
             
         except Exception as e:
-            LOG.error(f"Error processing command: {e}")
+            LOG.error(f"Error processing command: {e}", exc_info=True)
+            import traceback
+            traceback.print_exc()
             return {
                 "success": False,
                 "error": str(e),
