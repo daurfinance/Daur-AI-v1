@@ -69,8 +69,18 @@ def main():
             return
             
         # Создание и запуск агента
-        agent = DaurAgent(config, ui_mode=args.ui, sandbox=args.sandbox)
-        agent.run()
+        agent = DaurAgent(config)
+        
+        # Start agent
+        agent.start()
+        
+        # Keep running until interrupted
+        logger.info("Daur AI запущен. Нажмите Ctrl+C для остановки.")
+        try:
+            agent.stop_event.wait()
+        except KeyboardInterrupt:
+            logger.info("Остановка агента...")
+            agent.stop()
         
     except KeyboardInterrupt:
         logger.info("Программа остановлена пользователем")
