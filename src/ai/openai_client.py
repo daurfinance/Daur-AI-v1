@@ -48,23 +48,26 @@ class OpenAIClient:
     
     async def chat_async(self, prompt: str, 
                         temperature: float = 0.7,
-                        max_tokens: int = 2000) -> str:
+                        max_tokens: int = 2000,
+                        json_mode: bool = False) -> str:
         """Async chat with simple prompt string.
         
         Args:
             prompt: User prompt
             temperature: Sampling temperature
             max_tokens: Maximum tokens
+            json_mode: Enable JSON mode for structured output
             
         Returns:
             str: Generated response
         """
         messages = [{"role": "user", "content": prompt}]
-        return self.chat(messages, temperature, max_tokens)
+        return self.chat(messages, temperature, max_tokens, json_mode=json_mode)
     
     def chat(self, messages: List[Dict[str, str]], 
              temperature: float = 0.7,
              max_tokens: int = 2000,
+             json_mode: bool = False,
              **kwargs) -> str:
         """
         Send chat completion request
@@ -73,6 +76,7 @@ class OpenAIClient:
             messages (List[Dict]): List of message dicts with 'role' and 'content'
             temperature (float): Sampling temperature (0-2)
             max_tokens (int): Maximum tokens to generate
+            json_mode (bool): Enable JSON mode for structured output
             **kwargs: Additional parameters
             
         Returns:
@@ -89,6 +93,10 @@ class OpenAIClient:
                 "max_tokens": max_tokens,
                 **kwargs
             }
+            
+            # Enable JSON mode if requested
+            if json_mode:
+                payload["response_format"] = {"type": "json_object"}
             
             self.logger.debug(f"Sending chat request: {len(messages)} messages, model={self.model}")
             

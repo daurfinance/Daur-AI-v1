@@ -85,47 +85,14 @@ Respond in JSON format:
 }}
 """
         
-        # For now, use text-based analysis (GPT-4 Vision integration would require image upload)
-        # In production, this would send the image to GPT-4 Vision API
-        
-        # Simplified version: return structured analysis
+        # Use JSON mode for structured output
         try:
-            response = await self.ai.chat_async(prompt)
+            response = await self.ai.chat_async(prompt, json_mode=True)
             
-            # Try to extract JSON from response
-            start = response.find('{')
-            end = response.rfind('}') + 1
-            
-            if start >= 0 and end > start:
-                json_str = response[start:end]
-                
-                # Try to parse JSON, with fallback for common issues
-                try:
-                    analysis = json.loads(json_str)
-                except json.JSONDecodeError as e:
-                    LOG.warning(f"JSON parse error: {e}, trying to fix...")
-                    # Try to fix common JSON issues
-                    json_str = json_str.replace("'", '"')  # Single quotes to double
-                    json_str = json_str.replace('True', 'true').replace('False', 'false')  # Python bool to JSON
-                    try:
-                        analysis = json.loads(json_str)
-                    except:
-                        # Give up and return default
-                        raise
-                LOG.info(f"Screen analysis: {json.dumps(analysis, indent=2)}")
-                return analysis
-            else:
-                LOG.warning("Could not parse JSON from vision response")
-                return {
-                    "visible_apps": [],
-                    "active_app": "unknown",
-                    "spotlight_open": False,
-                    "keyboard_layout": "unknown",
-                    "ui_elements": [],
-                    "screen_state": response[:200],
-                    "can_proceed": True,
-                    "issues": ["Could not parse structured response"]
-                }
+            # JSON mode guarantees valid JSON
+            analysis = json.loads(response)
+            LOG.info(f"Screen analysis: {json.dumps(analysis, indent=2)}")
+            return analysis
         
         except Exception as e:
             LOG.error(f"Vision analysis failed: {e}")

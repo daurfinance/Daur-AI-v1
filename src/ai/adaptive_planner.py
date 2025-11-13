@@ -22,8 +22,8 @@ class Action:
     type: str  # 'open_app', 'type_text', 'click', 'hotkey', etc.
     description: str
     parameters: Dict[str, Any]
-    reasoning: str
-    expected_outcome: str  # What should happen after this action
+    reasoning: str = ""  # Optional
+    expected_outcome: str = ""  # Optional
 
 
 @dataclass
@@ -31,9 +31,9 @@ class Plan:
     """Represents an execution plan"""
     goal: str
     actions: List[Action]
-    reasoning: str
-    estimated_time: int  # seconds
-    contingency: Optional[str] = None  # What to do if plan fails
+    reasoning: str = ""
+    estimated_time: int = 0  # seconds
+    contingency: Optional[str] = None  # Optional
 
 
 class AdaptivePlanner:
@@ -75,42 +75,33 @@ class AdaptivePlanner:
         prompt = self._build_planning_prompt(command, system_profile, screen_analysis)
         
         try:
-            response = await self.ai.chat_async(prompt, temperature=0.7, max_tokens=3000)
+            response = await self.ai.chat_async(prompt, json_mode=True)
             
-            # Extract JSON from response
-            start = response.find('{')
-            end = response.rfind('}') + 1
+            # JSON mode guarantees valid JSON
+            plan_data = json.loads(response)
             
-            if start >= 0 and end > start:
-                json_str = response[start:end]
-                plan_data = json.loads(json_str)
-                
-                # Convert to Plan object
-                actions = [
-                    Action(
-                        type=a['type'],
-                        description=a['description'],
-                        parameters=a.get('parameters', {}),
-                        reasoning=a.get('reasoning', ''),
-                        expected_outcome=a.get('expected_outcome', '')
-                    )
-                    for a in plan_data.get('actions', [])
-                ]
-                
-                plan = Plan(
-                    goal=plan_data.get('goal', command),
-                    actions=actions,
-                    reasoning=plan_data.get('reasoning', ''),
-                    estimated_time=plan_data.get('estimated_time', len(actions) * 3),
-                    contingency=plan_data.get('contingency')
+            # Convert to Plan object
+            actions = [
+                Action(
+                    type=a['type'],
+                    description=a['description'],
+                    parameters=a.get('parameters', {}),
+                    reasoning=a.get('reasoning', ''),
+                    expected_outcome=a.get('expected_outcome', '')
                 )
-                
-                LOG.info(f"Plan created with {len(actions)} actions")
-                return plan
+                for a in plan_data.get('actions', [])
+            ]
             
-            else:
-                LOG.warning("Could not parse plan JSON, creating fallback plan")
-                return self._create_fallback_plan(command)
+            plan = Plan(
+                goal=plan_data.get('goal', command),
+                actions=actions,
+                reasoning=plan_data.get('reasoning', ''),
+                estimated_time=plan_data.get('estimated_time', len(actions) * 3),
+                contingency=plan_data.get('contingency')
+            )
+            
+            LOG.info(f"Plan created with {len(actions)} actions")
+            return plan
         
         except Exception as e:
             LOG.error(f"Plan creation failed: {e}")
@@ -175,39 +166,31 @@ AVAILABLE ACTION TYPES:
    
 7. switch_layout: Switch keyboard layout
    Parameters: {{"target_layout": "en"}}
-   
-8. verify_screen: Take screenshot and verify state
-   Parameters: {{"expected": "description"}}
 
 PLANNING RULES:
 1. Use ACTUAL system information (installed apps, shortcuts)
 2. Consider CURRENT screen state if provided
-3. Add verification steps after critical actions
-4. Include keyboard layout switching if needed
-5. Add wait times for UI to respond
-6. Provide clear expected outcomes for each action
-7. Include contingency plan for failures
+3. Include keyboard layout switching if needed (use {shortcuts.get('keyboard_layout_switch', 'ctrl+space')})
+4. Add small wait times (1-2s) after actions that change UI
+5. Keep it simple - model will see results in screenshots
 
-Create a detailed, adaptive plan in JSON format:
+Create a simple, executable plan in JSON format:
 
 {{
-  "goal": "Clear description of what we're trying to achieve",
-  "reasoning": "Why this approach given the current system state",
+  "goal": "Clear description of goal",
+  "reasoning": "Brief reasoning for approach",
   "estimated_time": 10,
-  "contingency": "What to do if plan fails",
   "actions": [
     {{
       "type": "action_type",
-      "description": "Human-readable description",
-      "parameters": {{"param": "value"}},
-      "reasoning": "Why this action is needed",
-      "expected_outcome": "What should happen after this action"
+      "description": "What this action does",
+      "parameters": {{"param": "value"}}
     }},
     ...
   ]
 }}
 
-Be adaptive and context-aware. Use the system information provided.
+Keep it simple. No verification steps - model will see results automatically.
 """
         
         return prompt

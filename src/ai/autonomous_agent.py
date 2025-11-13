@@ -142,80 +142,28 @@ class AutonomousAgent:
         initial_screen_state: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Execute plan with vision verification after each action.
-        Self-corrects if actions don't produce expected results.
+        Execute plan actions. Model will see results in next screenshot.
+        No verification after each action - simplified approach per OpenAI CUA.
         """
         results = []
-        current_screen_state = initial_screen_state
         
         for i, action in enumerate(plan.actions, 1):
             print(f"\n   [{i}/{len(plan.actions)}] {action.description}")
-            print(f"       Ожидаемый результат: {action.expected_outcome}")
             
             try:
                 # Execute action
-                before_screenshot = await self._take_screenshot(f"action_{i}_before")
-                
                 await self._execute_action(action)
                 
                 # Wait for UI to respond
                 await asyncio.sleep(1)
                 
-                # Verify result
-                after_screenshot = await self._take_screenshot(f"action_{i}_after")
-                verification = await self.vision.verify_action_result(
-                    before_screenshot,
-                    after_screenshot,
-                    action.expected_outcome
-                )
-                
-                if verification['success']:
-                    print(f"       ✅ Успешно!")
-                    results.append({
-                        "step": i,
-                        "action": action.description,
-                        "success": True,
-                        "verification": verification
-                    })
-                else:
-                    print(f"       ⚠️ Не получилось: {', '.join(verification['issues'])}")
-                    
-                    # Try to adapt and continue
-                    if verification.get('next_action'):
-                        print(f"       🔄 Адаптирую план...")
-                        adapted_plan = await self.planner.adapt_plan(
-                            plan,
-                            i,
-                            current_screen_state,
-                            ', '.join(verification['issues'])
-                        )
-                        
-                        # Execute adapted plan
-                        adapted_result = await self._execute_plan_with_vision(
-                            adapted_plan,
-                            current_screen_state
-                        )
-                        
-                        results.append({
-                            "step": i,
-                            "action": action.description,
-                            "success": False,
-                            "adapted": True,
-                            "adapted_result": adapted_result
-                        })
-                    else:
-                        results.append({
-                            "step": i,
-                            "action": action.description,
-                            "success": False,
-                            "verification": verification
-                        })
-                
-                # Update current screen state
-                current_screen_state = await self.vision.analyze_screen(
-                    after_screenshot,
-                    context="After action"
-                )
+                # Mark as successful (model will see result in next iteration)
+                print(f"       ✅ Выполнено")
+                results.append({
+                    "step": i,
+                    "action": action.description,
+                    "success": True
+                })
             
             except Exception as e:
                 LOG.error(f"Action {i} failed: {e}")
