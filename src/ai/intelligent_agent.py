@@ -353,9 +353,20 @@ Create plan for: "{command}"
             return f"Pressed: {key}"
         
         elif action_type == "hotkey":
+            # Handle both formats: {'keys': ['cmd', 'space']} or {'key1': 'cmd', 'key2': 'space'}
             keys = params.get('keys', [])
+            if not keys:
+                # Try key1, key2, key3, etc. format
+                keys = []
+                i = 1
+                while f'key{i}' in params:
+                    keys.append(params[f'key{i}'])
+                    i += 1
+            
             if isinstance(keys, str):
                 keys = keys.split('+')
+            
+            print(f"[DEBUG] Hotkey extracted keys: {keys}")
             await self.controller.hotkey(*keys)
             return f"Hotkey: {'+'.join(keys)}"
         
