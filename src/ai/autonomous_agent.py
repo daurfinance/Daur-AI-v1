@@ -254,6 +254,14 @@ class AutonomousAgent:
             await self.controller.hotkey(*keys)
             await asyncio.sleep(1)
             
+            # Switch to English layout if app name contains English
+            if any(c.isascii() and c.isalpha() for c in app_name):
+                print("       📝 Переключаю раскладку на английскую...")
+                layout_shortcut = self.profiler.get_layout_switch_shortcut()
+                layout_keys = layout_shortcut.split('+')
+                await self.controller.hotkey(*layout_keys)
+                await asyncio.sleep(0.3)
+            
             # Type app name
             await self.controller.type(app_name)
             await asyncio.sleep(0.5)
@@ -279,6 +287,16 @@ class AutonomousAgent:
         
         elif action_type == "type_text":
             text = params.get('text', '')
+            
+            # Check if text contains English characters
+            if any(c.isascii() and c.isalpha() for c in text):
+                # Switch to English layout first
+                print("       📝 Переключаю раскладку на английскую...")
+                layout_shortcut = self.profiler.get_layout_switch_shortcut()
+                keys = layout_shortcut.split('+')
+                await self.controller.hotkey(*keys)
+                await asyncio.sleep(0.3)
+            
             await self.controller.type(text)
         
         elif action_type == "press_key":

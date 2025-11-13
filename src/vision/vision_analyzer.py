@@ -98,7 +98,20 @@ Respond in JSON format:
             
             if start >= 0 and end > start:
                 json_str = response[start:end]
-                analysis = json.loads(json_str)
+                
+                # Try to parse JSON, with fallback for common issues
+                try:
+                    analysis = json.loads(json_str)
+                except json.JSONDecodeError as e:
+                    LOG.warning(f"JSON parse error: {e}, trying to fix...")
+                    # Try to fix common JSON issues
+                    json_str = json_str.replace("'", '"')  # Single quotes to double
+                    json_str = json_str.replace('True', 'true').replace('False', 'false')  # Python bool to JSON
+                    try:
+                        analysis = json.loads(json_str)
+                    except:
+                        # Give up and return default
+                        raise
                 LOG.info(f"Screen analysis: {json.dumps(analysis, indent=2)}")
                 return analysis
             else:
