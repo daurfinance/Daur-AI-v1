@@ -378,7 +378,15 @@ Create plan for: "{command}"
         })
         
         # Check if this is a command or a question
-        if any(keyword in message.lower() for keyword in ['open', 'create', 'search', 'find', 'go to', 'make', 'do']):
+        command_keywords = [
+            # English
+            'open', 'create', 'search', 'find', 'go to', 'make', 'do', 'launch', 'start', 'run',
+            'click', 'type', 'write', 'screenshot', 'capture', 'move', 'close',
+            # Russian
+            'открой', 'создай', 'найди', 'ищи', 'перейди', 'сделай', 'запусти', 'запиши',
+            'напиши', 'кликни', 'нажми', 'скриншот', 'закрой', 'введи'
+        ]
+        if any(keyword in message.lower() for keyword in command_keywords):
             # This is a command - execute it
             result = await self.process_command(message)
             
