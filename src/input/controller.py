@@ -104,7 +104,9 @@ class InputController:
         if self.safe_mode:
             LOG.debug(f"[SAFE] Type: {text}")
             return
-        await self._run_input(lambda: pyautogui.write(text, interval=interval))
+        # pyautogui requires interval to be a number, not None
+        intv = interval if interval is not None else self.keyboard_delay
+        await self._run_input(lambda: pyautogui.write(text, interval=intv))
 
     async def hotkey(self, *keys: str) -> None:
         """Press key combination."""
