@@ -180,7 +180,7 @@ Now analyze: "{command}"
 Command: "{command}"
 Intent: {understanding['intent']}
 Target: {understanding['target']}
-Parameters: {understanding.get('parameters', {{}})}
+Parameters: {understanding.get('parameters', {})}
 
 Available actions:
 1. open_app(app_name) - Open an application using Spotlight
