@@ -142,7 +142,9 @@ class DynamicAgent:
             return {
                 "success": False,
                 "error": str(e),
-                "command": command
+                "command": command,
+                "actions_taken": 0,
+                "actions_successful": 0
             }
     
     async def _decide_next_action(
@@ -339,9 +341,10 @@ Decide now - what's the next action?
         os_info = self.system_profile['os']
         keyboard = self.system_profile['keyboard']
         shortcuts = self.system_profile['shortcuts']
+        screen = self.system_profile['screen']
         
         return f"""- OS: {os_info['system']} {os_info['version']}
-- Screen: {self.system_profile['screen']['width']}x{self.system_profile['screen']['height']}
+- Screen: {screen.get('resolution', 'Unknown')}
 - Keyboard Layout: {keyboard['current_layout']}
 - Layout Switch: {shortcuts['keyboard_layout_switch']}
 - Spotlight: {shortcuts['spotlight']}
