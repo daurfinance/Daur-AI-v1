@@ -76,7 +76,10 @@ async def main():
         print("✅ Агент готов!")
         print()
     except Exception as e:
+        import traceback
         print(f"❌ Ошибка инициализации: {e}")
+        print("\nПолный traceback:")
+        traceback.print_exc()
         return
     
     # Chat loop
