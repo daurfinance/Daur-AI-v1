@@ -67,14 +67,18 @@ class InputController:
         if self.safe_mode:
             LOG.debug(f"[SAFE] Move mouse to ({x},{y})")
             return
-        await self._run_input(lambda: pyautogui.moveTo(x, y, duration=duration))
+        # pyautogui requires duration to be a number, not None
+        dur = duration if duration is not None else 0.0
+        await self._run_input(lambda: pyautogui.moveTo(x, y, duration=dur))
 
     async def drag(self, x: int, y: int, button: str = "left", duration: Optional[float] = None) -> None:
         """Drag mouse to coordinates."""
         if self.safe_mode:
             LOG.debug(f"[SAFE] Drag to ({x},{y})")
             return
-        await self._run_input(lambda: pyautogui.dragTo(x, y, button=button, duration=duration))
+        # pyautogui requires duration to be a number, not None
+        dur = duration if duration is not None else 0.0
+        await self._run_input(lambda: pyautogui.dragTo(x, y, button=button, duration=dur))
 
     async def scroll(self, clicks: int = 1, x: Optional[int] = None, y: Optional[int] = None) -> None:
         """Scroll mouse wheel."""
