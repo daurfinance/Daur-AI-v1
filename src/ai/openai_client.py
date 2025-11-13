@@ -46,6 +46,22 @@ class OpenAIClient:
         
         self.logger.info(f"OpenAI client initialized with model: {self.model}")
     
+    async def chat_async(self, prompt: str, 
+                        temperature: float = 0.7,
+                        max_tokens: int = 2000) -> str:
+        """Async chat with simple prompt string.
+        
+        Args:
+            prompt: User prompt
+            temperature: Sampling temperature
+            max_tokens: Maximum tokens
+            
+        Returns:
+            str: Generated response
+        """
+        messages = [{"role": "user", "content": prompt}]
+        return self.chat(messages, temperature, max_tokens)
+    
     def chat(self, messages: List[Dict[str, str]], 
              temperature: float = 0.7,
              max_tokens: int = 2000,
