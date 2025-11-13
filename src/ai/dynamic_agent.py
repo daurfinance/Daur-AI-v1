@@ -16,6 +16,13 @@ from src.ai.openai_client import OpenAIClient
 from src.input.controller import InputController
 from src.vision.screen_capture import ScreenCapture
 from src.system.system_profiler import SystemProfiler
+from src.validation import (
+    ActionValidator,
+    ResponseValidator,
+    validate_and_retry_json_response,
+    validate_and_retry_action
+)
+from src.context import load_and_format_context
 
 LOG = logging.getLogger("daur_ai.dynamic_agent")
 
@@ -50,6 +57,12 @@ class DynamicAgent:
         # Screenshot directory
         self.screenshot_dir = Path.home() / ".daur_ai" / "screenshots"
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Load project context
+        self.project_context = load_and_format_context()
+        if self.project_context:
+            LOG.info("Project context loaded")
+            print("📋 Загружен контекст проекта")
         
         # Action counter
         self.action_count = 0
@@ -205,19 +218,49 @@ RULES:
 3. If goal is achieved, return action="done"
 4. Keep actions simple and atomic
 5. Remember: keyboard layout is {self.system_profile['keyboard']['current_layout']}
-6. To switch layout, use hotkey: {self.system_profile['shortcuts']['keyboard_layout_switch']}
+6. To switch layout, use hotkey: {self.system_profile['keyboard'].get('switch_shortcut', 'ctrl+space')}
 
 Decide now - what's the next action?
 """
         
-        try:
+        # Use validation with retry
+        async def get_action():
             # Note: In production, would send actual screenshot to GPT-4 Vision
             # For now, using text-based decision (would need image upload)
             response = await self.ai.chat_async(prompt, json_mode=True)
-            action = json.loads(response)
+            return response
+        
+        try:
+            # Validate and retry if needed
+            action_json = await validate_and_retry_json_response(
+                func=get_action,
+                max_retries=3,
+                default_value={
+                    "action": "done",
+                    "description": "Failed to decide next action",
+                    "parameters": {},
+                    "reasoning": "All retries failed"
+                }
+            )
             
-            LOG.info(f"Next action decided: {action['action']} - {action['description']}")
-            return action
+            # Validate action structure
+            validation = ActionValidator.is_valid_action({
+                'type': action_json.get('action'),
+                'params': action_json.get('parameters', {})
+            })
+            
+            if not validation.is_valid:
+                LOG.warning(f"Invalid action structure: {validation.error_message}")
+                # Return done action
+                return {
+                    "action": "done",
+                    "description": "Invalid action structure",
+                    "parameters": {},
+                    "reasoning": validation.error_message
+                }
+            
+            LOG.info(f"Next action decided: {action_json['action']} - {action_json['description']}")
+            return action_json
         
         except Exception as e:
             LOG.error(f"Failed to decide next action: {e}")
@@ -343,12 +386,18 @@ Decide now - what's the next action?
         shortcuts = self.system_profile['shortcuts']
         screen = self.system_profile['screen']
         
-        return f"""- OS: {os_info['system']} {os_info['version']}
+        context = f"""- OS: {os_info['system']} {os_info['version']}
 - Screen: {screen.get('resolution', 'Unknown')}
 - Keyboard Layout: {keyboard['current_layout']}
 - Layout Switch: {keyboard.get('switch_shortcut', 'ctrl+space')}
 - Spotlight: {shortcuts.get('spotlight', 'command+space')}
 - Installed Apps: {len(self.system_profile['applications'])} apps"""
+        
+        # Add project context if available
+        if self.project_context:
+            context += "\n\n" + self.project_context
+        
+        return context
     
     def _build_actions_history(self, actions_taken: list) -> str:
         """Build actions history string."""
