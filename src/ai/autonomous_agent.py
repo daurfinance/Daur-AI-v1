@@ -325,9 +325,13 @@ class AutonomousAgent:
         filepath = self.screenshots_dir / filename
         
         try:
-            self.capture.capture_screen(str(filepath))
-            LOG.info(f"Screenshot saved: {filepath}")
-            return str(filepath)
+            result = self.capture.capture_sync(str(filepath))
+            if result:
+                LOG.info(f"Screenshot saved: {filepath}")
+                return str(filepath)
+            else:
+                LOG.error("Screenshot failed: capture_sync returned None")
+                return str(filepath)
         except Exception as e:
             LOG.error(f"Screenshot failed: {e}")
             # Return a dummy path
