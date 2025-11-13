@@ -44,7 +44,7 @@ class DynamicAgent:
         self.profiler = SystemProfiler()
         
         # Profile system once
-        self.system_profile = self.profiler.profile()
+        self.system_profile = self.profiler.get_profile()
         LOG.info(f"System profiled: {self.system_profile['os']['system']} {self.system_profile['os']['version']}")
         
         # Screenshot directory
