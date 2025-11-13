@@ -94,10 +94,13 @@ class InputController:
     async def key(self, key: str, hold: bool = False) -> None:
         """Press/release keyboard key."""
         if self.safe_mode:
-            LOG.debug(f"[SAFE] Key {key} ({'down' if hold else 'up'})")
+            LOG.debug(f"[SAFE] Key {key} ({'hold' if hold else 'press'})")
             return
-        fn = pyautogui.keyDown if hold else pyautogui.keyUp
-        await self._run_input(lambda: fn(key))
+        if hold:
+            await self._run_input(lambda: pyautogui.keyDown(key))
+        else:
+            # Press and release the key
+            await self._run_input(lambda: pyautogui.press(key))
 
     async def type(self, text: str, interval: Optional[float] = None) -> None:
         """Type text string."""

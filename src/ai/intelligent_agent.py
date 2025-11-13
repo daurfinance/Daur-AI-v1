@@ -55,7 +55,7 @@ class IntelligentAgent:
             raise ValueError("OpenAI API key required. Set OPENAI_API_KEY env var.")
         
         self.ai = OpenAIClient(api_key=self.api_key)
-        self.controller = InputController()
+        self.controller = InputController(config={"safe_mode": False})
         self.capture = ScreenCapture()
         
         self.conversation_history: List[Dict[str, str]] = []
@@ -310,14 +310,21 @@ Create plan for: "{command}"
         action_type = action.type
         params = action.parameters
         
+        LOG.info(f"Executing action: {action_type} with params: {params}")
+        
         if action_type == "open_app":
             app_name = params.get('app', '')
+            LOG.info(f"Opening app: {app_name}")
+            LOG.info("Step 1: Press Cmd+Space for Spotlight")
             await self.controller.hotkey("command", "space")
             await asyncio.sleep(1)
+            LOG.info(f"Step 2: Type '{app_name}'")
             await self.controller.type(app_name)
             await asyncio.sleep(0.5)
+            LOG.info("Step 3: Press Enter")
             await self.controller.key("enter")
             await asyncio.sleep(2)
+            LOG.info(f"App {app_name} should be opened")
             return f"Opened {app_name}"
         
         elif action_type == "type_text":
