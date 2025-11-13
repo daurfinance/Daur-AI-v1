@@ -276,6 +276,7 @@ Create plan for: "{command}"
         for i, action in enumerate(plan.actions, 1):
             LOG.info(f"Step {i}/{len(plan.actions)}: {action.description}")
             LOG.info(f"Reasoning: {action.reasoning}")
+            print(f"\n[DEBUG] Action {i}: type={action.type}, params={action.parameters}")
             
             try:
                 result = await self._execute_action(action)
