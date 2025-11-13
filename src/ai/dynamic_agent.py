@@ -39,7 +39,7 @@ class DynamicAgent:
         
         # Initialize components
         self.ai = OpenAIClient(api_key=api_key, model="gpt-4o")
-        self.controller = InputController(safe_mode=False)
+        self.controller = InputController(config={"safe_mode": False})
         self.capture = ScreenCapture()
         self.profiler = SystemProfiler()
         
