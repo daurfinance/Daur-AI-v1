@@ -1,0 +1,32 @@
+# Daur AI MVP Requirements
+# 100% Local LLM Solution
+
+# Core Dependencies
+requests>=2.31.0
+asyncio>=3.4.3
+
+# Computer Control
+pyautogui>=0.9.54
+pillow>=10.0.0
+
+# OCR (Free)
+pytesseract>=0.3.10
+
+# Browser Automation
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Note: Ollama must be installed separately
+# Installation:
+#   macOS: brew install ollama
+#   Linux: curl -fsSL https://ollama.com/install.sh | sh
+#   Windows: Download from https://ollama.com/download
+#
+# After installing Ollama, download models:
+#   ollama pull llama3.2:3b
+#   ollama pull llava
+#   ollama pull codellama:7b
+
